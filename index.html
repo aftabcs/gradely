@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gradely — Proposal</title>
+<meta name="description" content="Gradely: the post-lecture learning loop that closes the gap from lecture to placement." />
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-2: #11141c;
+    --bg-3: #161a24;
+    --surface: #191e2a;
+    --border: #262c3a;
+    --text: #e8ecf4;
+    --muted: #9aa4b8;
+    --faint: #6b7488;
+    --brand: #6d5efc;
+    --brand-2: #22d3ee;
+    --accent: #f471b5;
+    --good: #34d399;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --shadow: 0 20px 60px -20px rgba(0,0,0,.6);
+    --radius: 16px;
+    --maxw: 1160px;
+  }
+  [data-theme="light"] {
+    --bg: #f6f7fb;
+    --bg-2: #ffffff;
+    --bg-3: #f0f2f8;
+    --surface: #ffffff;
+    --border: #e4e8f0;
+    --text: #10131a;
+    --muted: #55607a;
+    --faint: #8a93a8;
+    --shadow: 0 20px 50px -24px rgba(30,40,80,.25);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  h1,h2,h3,h4 { line-height: 1.15; margin: 0 0 .4em; letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); }
+  h3 { font-size: 1.25rem; }
+  p { margin: 0 0 1rem; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  section { padding: 84px 0; position: relative; }
+  .eyebrow {
+    display: inline-block; font-size: .78rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--brand-2); margin-bottom: 14px;
+  }
+  .lede { color: var(--muted); font-size: 1.12rem; max-width: 62ch; }
+  .grid { display: grid; gap: 20px; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 20px; height: 62px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; letter-spacing: -.03em; }
+  .logo .dot { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, var(--brand), var(--brand-2)); box-shadow: 0 4px 14px -2px var(--brand); display:grid; place-items:center; color:#fff; font-size: .8rem; }
+  .nav-links { display: flex; gap: 4px; margin-left: auto; }
+  .nav-links a {
+    text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 600;
+    padding: 8px 12px; border-radius: 9px; transition: .18s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg-3); }
+  .icon-btn {
+    background: var(--bg-3); border: 1px solid var(--border); color: var(--text);
+    width: 38px; height: 38px; border-radius: 10px; cursor: pointer; font-size: 1rem;
+    display: grid; place-items: center; transition: .18s;
+  }
+  .icon-btn:hover { border-color: var(--brand); }
+  @media (max-width: 860px){ .nav-links { display: none; } }
+
+  /* HERO */
+  .hero { padding-top: 70px; padding-bottom: 40px; overflow: hidden; }
+  .hero-glow {
+    position: absolute; inset: -30% 0 auto 0; height: 620px; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(600px 340px at 22% 20%, color-mix(in srgb, var(--brand) 34%, transparent), transparent 70%),
+      radial-gradient(520px 320px at 82% 8%, color-mix(in srgb, var(--brand-2) 26%, transparent), transparent 70%);
+    filter: blur(6px);
+  }
+  .hero .wrap { position: relative; z-index: 1; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 600;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--border);
+    padding: 7px 14px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 var(--good); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 70%,transparent)} 70%{box-shadow:0 0 0 8px transparent} 100%{box-shadow:0 0 0 0 transparent} }
+  .hero h1 { font-size: clamp(2.5rem, 6.4vw, 4.6rem); font-weight: 850; letter-spacing: -.04em; margin-bottom: 20px; }
+  .hero h1 .grad { background: linear-gradient(115deg, var(--brand) 10%, var(--brand-2) 60%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lede { font-size: 1.25rem; }
+  .cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 30px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; text-decoration: none; cursor: pointer;
+    font-weight: 700; font-size: .96rem; padding: 13px 22px; border-radius: 12px; border: 1px solid transparent; transition: .2s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--brand), #8b7cff); color: #fff; box-shadow: 0 10px 30px -8px var(--brand); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 38px -8px var(--brand); }
+  .btn-ghost { background: var(--surface); border-color: var(--border); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--brand); }
+  .stat-row { display: flex; gap: 34px; flex-wrap: wrap; margin-top: 48px; padding-top: 30px; border-top: 1px solid var(--border); }
+  .stat b { display: block; font-size: 2rem; font-weight: 800; letter-spacing: -.03em; background: linear-gradient(120deg,var(--text),var(--muted)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .stat span { color: var(--faint); font-size: .84rem; }
+
+  /* PROBLEM */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 26px; transition: .22s; position: relative;
+  }
+  .card:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--brand) 50%, var(--border)); box-shadow: var(--shadow); }
+  .card .ic { font-size: 1.5rem; margin-bottom: 12px; }
+  .card h3 { font-size: 1.05rem; }
+  .card p { color: var(--muted); font-size: .93rem; margin: 0; }
+
+  /* LOOP */
+  .loop-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px){ .loop-wrap { grid-template-columns: 1fr; } }
+  .loop-stage {
+    display: flex; gap: 16px; padding: 16px; border-radius: 14px; cursor: pointer;
+    border: 1px solid transparent; transition: .2s; align-items: flex-start;
+  }
+  .loop-stage:hover { background: var(--bg-3); }
+  .loop-stage.active { background: var(--surface); border-color: var(--brand); box-shadow: var(--shadow); }
+  .loop-stage .num {
+    flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+    font-weight: 800; font-size: .9rem; background: var(--bg-3); border: 1px solid var(--border); color: var(--muted);
+  }
+  .loop-stage.active .num { background: linear-gradient(135deg,var(--brand),var(--brand-2)); color: #fff; border-color: transparent; }
+  .loop-stage h4 { margin: 4px 0 2px; font-size: 1rem; }
+  .loop-stage p { margin: 0; color: var(--muted); font-size: .88rem; }
+  .loop-visual {
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 20px; padding: 30px;
+    min-height: 340px; position: relative; overflow: hidden;
+  }
+  .loop-detail { animation: fade .4s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform: none;} }
+  .loop-detail .tag { font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color: var(--brand-2); }
+  .loop-detail h3 { margin: 8px 0 12px; }
+  .chip { display:inline-block; font-size:.78rem; padding: 5px 11px; border-radius: 999px; background: var(--bg-3); border:1px solid var(--border); color: var(--muted); margin: 0 6px 6px 0; }
+  .ring { position:absolute; right:-60px; bottom:-60px; width: 200px; height:200px; border-radius:50%; border: 2px dashed var(--border); opacity:.5;}
+
+  /* MODULES tabs */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .tab {
+    padding: 10px 16px; border-radius: 11px; cursor: pointer; font-weight: 600; font-size: .9rem;
+    background: var(--surface); border: 1px solid var(--border); color: var(--muted); transition: .18s; display:flex; gap:8px; align-items:center;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: linear-gradient(135deg, color-mix(in srgb,var(--brand) 24%, var(--surface)), var(--surface)); border-color: var(--brand); color: var(--text); }
+  .tab-panel { display: none; animation: fade .35s ease; }
+  .tab-panel.active { display: block; }
+  .module-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 30px; align-items: start; }
+  @media (max-width: 880px){ .module-grid { grid-template-columns: 1fr; } }
+  .feature-list { list-style: none; padding: 0; margin: 18px 0 0; }
+  .feature-list li { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); color: var(--muted); font-size: .95rem; }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list .ck { color: var(--good); font-weight: 800; }
+  .pill-v2 { font-size:.68rem; font-weight:800; color: var(--warn); border:1px solid color-mix(in srgb,var(--warn) 50%,transparent); padding:1px 7px; border-radius: 999px; margin-left:6px; }
+
+  /* Fake UI panels */
+  .mock {
+    background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .mock-bar { display:flex; align-items:center; gap:7px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-3); }
+  .mock-bar i { width: 11px; height: 11px; border-radius: 50%; display:inline-block; }
+  .mock-bar .t { margin-left: 10px; font-size:.8rem; color: var(--faint); font-weight:600; }
+  .mock-body { padding: 20px; }
+
+  /* QUIZ */
+  .quiz-q { font-weight: 700; font-size: 1.05rem; margin-bottom: 16px; }
+  .quiz-opt {
+    display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface); cursor: pointer; margin-bottom: 10px; transition: .16s; font-size:.95rem;
+  }
+  .quiz-opt:hover { border-color: var(--brand); }
+  .quiz-opt .key { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: var(--bg-3); font-weight: 700; font-size: .82rem; flex:0 0 auto; }
+  .quiz-opt.correct { border-color: var(--good); background: color-mix(in srgb,var(--good) 14%, var(--surface)); }
+  .quiz-opt.wrong { border-color: var(--bad); background: color-mix(in srgb,var(--bad) 14%, var(--surface)); }
+  .quiz-opt.correct .key { background: var(--good); color:#04140d; }
+  .quiz-opt.wrong .key { background: var(--bad); color:#1a0505; }
+  .quiz-feedback { margin-top: 14px; padding: 14px; border-radius: 12px; font-size:.9rem; display:none; }
+  .quiz-feedback.show { display:block; }
+  .quiz-progress { height: 6px; background: var(--bg-3); border-radius: 999px; overflow: hidden; margin-bottom: 18px; }
+  .quiz-progress > div { height: 100%; background: linear-gradient(90deg,var(--brand),var(--brand-2)); width: 0; transition: width .5s; }
+
+  /* SIMULATOR */
+  .sim-grid { display: grid; grid-template-columns: 340px 1fr; gap: 26px; align-items: start; }
+  @media (max-width: 880px){ .sim-grid { grid-template-columns: 1fr; } }
+  .slider-row { margin-bottom: 22px; }
+  .slider-row label { display:flex; justify-content: space-between; font-size:.9rem; font-weight:600; margin-bottom:8px; }
+  .slider-row label b { color: var(--brand-2); }
+  input[type=range]{ -webkit-appearance:none; width:100%; height:6px; border-radius:999px; background: var(--bg-3); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:20px;height:20px;border-radius:50%; background: linear-gradient(135deg,var(--brand),var(--brand-2)); cursor:pointer; box-shadow: 0 2px 8px -1px var(--brand); border: 2px solid var(--bg-2);}
+  .toggle-row { display:flex; align-items:center; justify-content: space-between; padding: 12px 0; border-top: 1px dashed var(--border); font-size:.9rem; font-weight:600;}
+  .switch { position: relative; width: 46px; height: 26px; }
+  .switch input { display:none; }
+  .switch .track { position:absolute; inset:0; background: var(--bg-3); border:1px solid var(--border); border-radius: 999px; transition:.2s; cursor:pointer; }
+  .switch .track::after { content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background: var(--faint); transition:.2s; }
+  .switch input:checked + .track { background: linear-gradient(135deg,var(--brand),var(--brand-2)); border-color: transparent; }
+  .switch input:checked + .track::after { transform: translateX(20px); background:#fff; }
+  table.students { width:100%; border-collapse: collapse; font-size:.88rem; }
+  table.students th { text-align:left; color: var(--faint); font-weight:600; font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; padding: 10px 12px; border-bottom: 1px solid var(--border);}
+  table.students td { padding: 12px; border-bottom: 1px solid var(--border); }
+  table.students tr.eligible { background: color-mix(in srgb,var(--good) 8%, transparent); }
+  .flag { font-size:.72rem; font-weight:800; padding: 3px 9px; border-radius: 999px; }
+  .flag.yes { background: color-mix(in srgb,var(--good) 20%, transparent); color: var(--good); }
+  .flag.no { background: var(--bg-3); color: var(--faint); }
+  .mini-bar { height:7px; border-radius:999px; background: var(--bg-3); overflow:hidden; width: 70px; display:inline-block; vertical-align: middle; margin-right:8px;}
+  .mini-bar > span { display:block; height:100%; background: linear-gradient(90deg,var(--brand),var(--brand-2)); }
+  .sim-count { font-size: 2.2rem; font-weight: 850; letter-spacing:-.03em; }
+
+  /* DASHBOARD */
+  .kpi-row { display:grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width:700px){ .kpi-row{ grid-template-columns: repeat(2,1fr);} }
+  .kpi { background: var(--surface); border:1px solid var(--border); border-radius: 14px; padding: 16px; }
+  .kpi .l { font-size:.76rem; color: var(--faint); text-transform:uppercase; letter-spacing:.06em; font-weight:600;}
+  .kpi .v { font-size: 1.7rem; font-weight: 800; letter-spacing:-.02em; margin-top:4px;}
+  .kpi .d { font-size:.78rem; font-weight:700; }
+  .kpi .d.up { color: var(--good); } .kpi .d.down { color: var(--bad); }
+  .bars { display:flex; align-items: flex-end; gap: 10px; height: 150px; padding: 10px 4px 0;}
+  .bars .bcol { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end;}
+  .bars .bcol .bar { width: 100%; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg,var(--brand),color-mix(in srgb,var(--brand-2) 60%,var(--brand))); transition: height 1s cubic-bezier(.2,.8,.2,1); min-height: 4px;}
+  .bars .bcol small { color: var(--faint); font-size:.72rem; }
+
+  /* ANALYSIS */
+  .analysis-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 780px){ .analysis-grid { grid-template-columns: 1fr; } }
+  .anote { border-left: 3px solid var(--brand); padding: 4px 0 4px 18px; }
+  .anote.warnb { border-color: var(--warn); }
+  .anote.goodb { border-color: var(--good); }
+  .anote h4 { font-size: 1rem; margin-bottom: 6px; }
+  .anote p { color: var(--muted); font-size:.92rem; margin:0; }
+
+  /* DECISIONS */
+  .decision { background: var(--surface); border:1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 14px; }
+  .decision summary { cursor: pointer; font-weight: 700; font-size: 1.02rem; list-style: none; display:flex; align-items:center; gap: 12px; }
+  .decision summary::-webkit-details-marker { display:none; }
+  .decision summary .qn { flex:0 0 auto; width:28px;height:28px;border-radius:8px; background: var(--bg-3); display:grid;place-items:center; font-size:.8rem; font-weight:800; color: var(--brand-2);}
+  .decision summary .arr { margin-left:auto; color: var(--faint); transition:.2s; }
+  .decision[open] summary .arr { transform: rotate(90deg); }
+  .decision .opts { margin-top: 16px; display:grid; gap: 10px; }
+  .decision .opt { padding: 12px 14px; border-radius: 10px; background: var(--bg-2); border:1px solid var(--border); font-size:.9rem; }
+  .decision .opt b { color: var(--text); }
+  .decision .rec { border-color: color-mix(in srgb,var(--good) 55%,var(--border)); background: color-mix(in srgb,var(--good) 9%, var(--bg-2)); }
+  .decision .rec::before { content:"★ Our lean "; color: var(--good); font-weight:800; font-size:.74rem; }
+
+  /* ROADMAP */
+  .timeline { position: relative; padding-left: 30px; }
+  .timeline::before { content:""; position:absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 26px; }
+  .tl-item::before { content:""; position:absolute; left: -26px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px var(--bg); }
+  .tl-item.v2::before { background: var(--brand-2); }
+  .tl-item.v3::before { background: var(--accent); }
+  .tl-item .ph { font-size:.76rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color: var(--faint); }
+  .tl-item h4 { margin: 4px 0 6px; }
+  .tl-item p { color: var(--muted); font-size:.92rem; margin:0; }
+
+  /* ARCH */
+  .arch { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; }
+  .arch-node { background: var(--surface); border:1px solid var(--border); border-radius: 12px; padding: 16px; text-align:center; font-size:.86rem; }
+  .arch-node .ai { font-size: 1.4rem; display:block; margin-bottom: 6px; }
+  .arch-node b { display:block; font-size:.92rem; }
+  .arch-node span { color: var(--faint); font-size:.78rem; }
+  .flow-arrow { text-align:center; color: var(--faint); font-size: 1.4rem; margin: 6px 0; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--faint); font-size:.88rem; }
+  .foot-inner { display:flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items:center; }
+
+  .section-alt { background: var(--bg-2); }
+  .reveal { opacity: 0; transform: translateY(24px); transition: .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo"><span class="dot">G</span> Gradely</div>
+    <div class="nav-links">
+      <a href="#loop">The Loop</a>
+      <a href="#modules">Modules</a>
+      <a href="#quiz">Live Demo</a>
+      <a href="#placement">Placement Engine</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#roadmap">Roadmap</a>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap">
+    <span class="badge"><span class="pulse"></span> Product Proposal · v1 Draft · 2026</span>
+    <h1>Turn every lecture into a<br><span class="grad">measurable path to placement.</span></h1>
+    <p class="lede">Gradely is the post-lecture learning loop. Each session automatically becomes a summary, a quiz, a graded assignment, and bite-size revision — then feeds a placement-eligibility engine that tells companies exactly who's job-ready.</p>
+    <div class="cta-row">
+      <a href="#loop" class="btn btn-primary">See the loop →</a>
+      <a href="#quiz" class="btn btn-ghost">▶ Try the live demo</a>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><b>6</b><span>Modules, one closed loop</span></div>
+      <div class="stat"><b>~90s</b><span>Micro-revision bytes</span></div>
+      <div class="stat"><b>1</b><span>Auto-flagged eligibility gate</span></div>
+      <div class="stat"><b>0→hire</b><span>The loop most LMS never close</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- PROBLEM -->
+<section id="problem" class="section-alt">
+  <div class="wrap">
+    <span class="eyebrow reveal">The gap</span>
+    <h2 class="reveal">Lectures end. Learning leaks. Placement is a black box.</h2>
+    <p class="lede reveal" style="margin-bottom:34px">Most LMS platforms stop at content delivery. What happens between "lecture watched" and "candidate hired" is manual, inconsistent, and invisible — to students, instructors, and companies alike.</p>
+    <div class="cards">
+      <div class="card reveal"><div class="ic">🧠</div><h3>Retention drops fast</h3><p>Without structured revision within 24–48h, most of a session is forgotten. Notes are inconsistent and rarely revisited.</p></div>
+      <div class="card reveal"><div class="ic">⏳</div><h3>Assessment is manual</h3><p>Instructors hand-build quizzes and grade assignments — so feedback is slow, sparse, and doesn't scale across cohorts.</p></div>
+      <div class="card reveal"><div class="ic">📉</div><h3>Progress is fuzzy</h3><p>"Are they ready?" is answered by gut feel. There's no continuous signal tying learning to employability.</p></div>
+      <div class="card reveal"><div class="ic">🔌</div><h3>The loop never closes</h3><p>Learning data and hiring live in separate worlds. Companies can't see who's actually job-ready, so placement stays a black box.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- LOOP -->
+<section id="loop">
+  <div class="wrap">
+    <span class="eyebrow reveal">The core concept</span>
+    <h2 class="reveal">One automated loop, per session.</h2>
+    <p class="lede reveal" style="margin-bottom:40px">Click a stage to see what Gradely produces automatically. Everything is generated from a single input: the session recording or transcript.</p>
+    <div class="loop-wrap">
+      <div class="reveal">
+        <div class="loop-stage active" data-stage="0">
+          <div class="num">1</div><div><h4>Session</h4><p>Recording / transcript ingested — the single source of truth.</p></div>
+        </div>
+        <div class="loop-stage" data-stage="1">
+          <div class="num">2</div><div><h4>Auto-Summary</h4><p>Tiered notes: TL;DR, detailed notes, key-terms glossary.</p></div>
+        </div>
+        <div class="loop-stage" data-stage="2">
+          <div class="num">3</div><div><h4>Quiz</h4><p>MCQ + scenario questions generated from the same source.</p></div>
+        </div>
+        <div class="loop-stage" data-stage="3">
+          <div class="num">4</div><div><h4>Assignment</h4><p>Applied task with an AI rubric evaluator + mentor spot-check.</p></div>
+        </div>
+        <div class="loop-stage" data-stage="4">
+          <div class="num">5</div><div><h4>Micro-revision bytes</h4><p>60–90s clips / carousels per concept for spaced repetition.</p></div>
+        </div>
+        <div class="loop-stage" data-stage="5">
+          <div class="num">6</div><div><h4>Progress → Eligibility</h4><p>Signals roll up into the placement-eligibility gate.</p></div>
+        </div>
+      </div>
+      <div class="loop-visual reveal">
+        <div class="ring"></div>
+        <div id="loopDetail"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="modules" class="section-alt">
+  <div class="wrap">
+    <span class="eyebrow reveal">Key modules</span>
+    <h2 class="reveal">Six modules designed to work as one system.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">Each module is useful alone — but the moat is how they compound into the eligibility engine.</p>
+    <div class="tabs reveal" id="moduleTabs">
+      <div class="tab active" data-tab="0">📝 Auto-Summary</div>
+      <div class="tab" data-tab="1">❓ Quiz</div>
+      <div class="tab" data-tab="2">🛠️ Assignment</div>
+      <div class="tab" data-tab="3">🎬 Revision Bytes</div>
+      <div class="tab" data-tab="4">📊 Instructor Dashboard</div>
+      <div class="tab" data-tab="5">🎯 Placement Engine</div>
+    </div>
+    <div id="modulePanels"></div>
+  </div>
+</section>
+
+<!-- QUIZ DEMO -->
+<section id="quiz">
+  <div class="wrap">
+    <span class="eyebrow reveal">Live demo · 1 of 3</span>
+    <h2 class="reveal">Auto-generated quiz — try it.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">This is the kind of question Gradely produces from a marketing session transcript. Answer to see scoring and instant feedback.</p>
+    <div style="max-width:720px" class="reveal">
+      <div class="mock">
+        <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">gradely · Session 12 — Performance Marketing · Quiz</span></div>
+        <div class="mock-body">
+          <div class="quiz-progress"><div id="quizBar"></div></div>
+          <div id="quizHost"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLACEMENT SIMULATOR -->
+<section id="placement" class="section-alt">
+  <div class="wrap">
+    <span class="eyebrow reveal">Live demo · 2 of 3 · The differentiator</span>
+    <h2 class="reveal">Placement Eligibility Engine.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">Companies set the bar. Gradely auto-flags who clears it. Move the sliders — watch the eligible pool recompute in real time across a sample cohort of 8 students.</p>
+    <div class="sim-grid">
+      <div class="mock reveal">
+        <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">Acme Corp — Hiring criteria</span></div>
+        <div class="mock-body">
+          <div class="slider-row">
+            <label>Min. quiz average <b><span id="vQuiz">80</span>%</b></label>
+            <input type="range" id="sQuiz" min="0" max="100" value="80">
+          </div>
+          <div class="slider-row">
+            <label>Min. assignments submitted <b><span id="vAssign">100</span>%</b></label>
+            <input type="range" id="sAssign" min="0" max="100" value="100" step="10">
+          </div>
+          <div class="slider-row">
+            <label>Min. engagement percentile <b>top <span id="vEng">30</span>%</b></label>
+            <input type="range" id="sEng" min="0" max="100" value="70">
+          </div>
+          <div class="toggle-row">
+            <span>Require mentor-approved assignment</span>
+            <label class="switch"><input type="checkbox" id="sMentor" checked><span class="track"></span></label>
+          </div>
+          <div style="margin-top:22px; text-align:center; background:var(--bg-2); border:1px solid var(--border); border-radius:12px; padding:16px;">
+            <div class="sim-count"><span id="simN">0</span> / 8</div>
+            <div style="color:var(--faint); font-size:.82rem;">students currently eligible</div>
+          </div>
+        </div>
+      </div>
+      <div class="mock reveal">
+        <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">Cohort · Full-Stack Batch 07</span></div>
+        <div class="mock-body" style="overflow-x:auto;">
+          <table class="students">
+            <thead><tr><th>Student</th><th>Quiz</th><th>Assign.</th><th>Engagement</th><th>Mentor ✓</th><th>Status</th></tr></thead>
+            <tbody id="studentRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD DEMO -->
+<section id="dashboard">
+  <div class="wrap">
+    <span class="eyebrow reveal">Live demo · 3 of 3</span>
+    <h2 class="reveal">Instructor dashboard.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">Per-cohort health at a glance — quiz trends, completion, engagement, and time-to-completion.</p>
+    <div class="mock reveal">
+      <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">gradely · Instructor · Batch 07 overview</span></div>
+      <div class="mock-body">
+        <div class="kpi-row">
+          <div class="kpi"><div class="l">Avg quiz score</div><div class="v">78%</div><div class="d up">▲ 6% vs last week</div></div>
+          <div class="kpi"><div class="l">Assignment completion</div><div class="v">84%</div><div class="d up">▲ 3%</div></div>
+          <div class="kpi"><div class="l">Bytes watched / student</div><div class="v">11.4</div><div class="d down">▼ 2 vs peak</div></div>
+          <div class="kpi"><div class="l">Placement-ready</div><div class="v">5<span style="font-size:1rem;color:var(--faint)">/8</span></div><div class="d up">▲ 2 this week</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px" id="dashLower">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <div style="font-size:.82rem;color:var(--faint);font-weight:600;margin-bottom:4px;">Quiz average by session</div>
+            <div class="bars" id="dashBars"></div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;">
+            <div style="font-size:.82rem;color:var(--faint);font-weight:600;margin-bottom:14px;">At-risk signals</div>
+            <div style="display:flex;flex-direction:column;gap:12px;font-size:.9rem;">
+              <div style="display:flex;justify-content:space-between;"><span>🔴 Rahul — 3 quizzes skipped</span><span style="color:var(--bad);font-weight:700;">High</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🟠 Meera — engagement dropping</span><span style="color:var(--warn);font-weight:700;">Watch</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🟠 Dev — assignment overdue</span><span style="color:var(--warn);font-weight:700;">Watch</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🟢 Cohort trend</span><span style="color:var(--good);font-weight:700;">Improving</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYSIS -->
+<section id="analysis" class="section-alt">
+  <div class="wrap">
+    <span class="eyebrow reveal">My take</span>
+    <h2 class="reveal">Strategic analysis &amp; input.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">Where I think Gradely wins, where the real risk sits, and what to sequence.</p>
+    <div class="analysis-grid">
+      <div class="anote goodb reveal"><h4>✅ The eligibility engine is the whole business</h4><p>Summary/quiz/bytes are commoditizing fast (any LLM does them). The defensible wedge is closing the loop to hiring. Lead with it in positioning, even if you build it last.</p></div>
+      <div class="anote goodb reveal"><h4>✅ Data compounding is your moat</h4><p>Every session adds labeled performance data tied to real outcomes. Over cohorts this becomes a job-readiness signal no single-LLM competitor can copy. Instrument for this from day one.</p></div>
+      <div class="anote warnb reveal"><h4>⚠️ Assignment grading is the hard 20%</h4><p>Practical/creative work resists pure automation. Don't over-promise a fully-auto grader. Ship rubric-assisted grading that makes a <em>mentor 5× faster</em>, not one that replaces them. This is where trust is won or lost.</p></div>
+      <div class="anote warnb reveal"><h4>⚠️ Two-sided cold start</h4><p>The eligibility gate is only valuable if companies trust the signal. You need enough student outcomes before employers lean in. Consider seeding with one bootcamp + a few friendly hiring partners.</p></div>
+      <div class="anote warnb reveal"><h4>⚠️ "Auto quiz" quality bar is deceptively high</h4><p>Generic MCQs erode trust instantly. Invest early in scenario/applied questions and a human review step per session before it hits students.</p></div>
+      <div class="anote reveal"><h4>💡 Reframe: outcomes infra, not another LMS</h4><p>Position Gradely as the layer that sits <em>on top of</em> existing LMS/Zoom/Meet — not a rip-and-replace. Lower switching cost, faster pilots, and you own the highest-value data.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DECISIONS -->
+<section id="decisions">
+  <div class="wrap">
+    <span class="eyebrow reveal">Decisions that shape everything</span>
+    <h2 class="reveal">Six forks in the road.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">These choices cascade into architecture, cost, and GTM. Expand each — I've starred the lean I'd take for v1.</p>
+    <div id="decisionHost"></div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="section-alt">
+  <div class="wrap">
+    <span class="eyebrow reveal">Sequencing</span>
+    <h2 class="reveal">A build order that de-risks fastest.</h2>
+    <div class="grid reveal" style="max-width:760px; margin-top:24px;">
+      <div class="timeline">
+        <div class="tl-item"><div class="ph">V1 · The core loop (0–3 mo)</div><h4>Prove learning value on one cohort</h4><p>Transcript → tiered summary → MCQ + scenario quiz → basic progress tracking → instructor dashboard. Manual assignment grading, rubric-assisted. Single subject vertical.</p></div>
+        <div class="tl-item v2"><div class="ph">V2 · The differentiator (3–6 mo)</div><h4>Ship the eligibility engine + bytes</h4><p>Configurable company criteria + auto-flagging, micro-revision bytes, adaptive quiz difficulty, mentor grading workflow. Onboard 2–3 friendly hiring partners.</p></div>
+        <div class="tl-item v3"><div class="ph">V3 · The network (6–12 mo)</div><h4>Two-sided outcomes marketplace</h4><p>Company-facing candidate pool, benchmarked job-readiness score, multi-cohort analytics, integrations (Zoom/Meet/LMS). Data moat compounds.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCH -->
+<section id="arch">
+  <div class="wrap">
+    <span class="eyebrow reveal">Under the hood</span>
+    <h2 class="reveal">Reference architecture.</h2>
+    <p class="lede reveal" style="margin-bottom:30px">One ingestion pipeline fans out into every artifact, then rolls back up into the eligibility store.</p>
+    <div class="reveal" style="max-width:820px;margin:0 auto;">
+      <div class="arch">
+        <div class="arch-node"><span class="ai">🎥</span><b>Session Ingest</b><span>Zoom / Meet / upload</span></div>
+        <div class="arch-node"><span class="ai">🎙️</span><b>Transcription</b><span>Whisper-class ASR</span></div>
+        <div class="arch-node"><span class="ai">🧩</span><b>Chunk + Embed</b><span>Vector store</span></div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="arch">
+        <div class="arch-node"><span class="ai">📝</span><b>Summary Gen</b><span>LLM · tiered</span></div>
+        <div class="arch-node"><span class="ai">❓</span><b>Quiz Gen</b><span>LLM + review</span></div>
+        <div class="arch-node"><span class="ai">🛠️</span><b>Rubric Grader</b><span>LLM + mentor</span></div>
+        <div class="arch-node"><span class="ai">🎬</span><b>Byte Clipper</b><span>Segment + render</span></div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="arch">
+        <div class="arch-node"><span class="ai">📊</span><b>Progress Store</b><span>Per-student events</span></div>
+        <div class="arch-node"><span class="ai">🎯</span><b>Eligibility Engine</b><span>Rules + scoring</span></div>
+        <div class="arch-node"><span class="ai">🏢</span><b>Company Portal</b><span>Configurable gates</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section-alt" style="text-align:center;">
+  <div class="wrap reveal">
+    <h2>Close the loop from lecture to livelihood.</h2>
+    <p class="lede" style="margin:0 auto 26px;">Gradely turns teaching into measurable, hireable outcomes — automatically, every session.</p>
+    <a href="#loop" class="btn btn-primary">Revisit the loop ↑</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="logo" style="font-size:1rem;"><span class="dot">G</span> Gradely</div>
+    <div>Product proposal · Interactive draft · Prepared 2026</div>
+    <div>Built to close the learning-to-placement loop.</div>
+  </div>
+</footer>
+
+<script>
+/* ---------- THEME ---------- */
+const themeBtn = document.getElementById('themeBtn');
+themeBtn.addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+});
+
+/* ---------- LOOP DETAIL ---------- */
+const loopData = [
+  {tag:'Input', h:'Session recording / transcript', d:'The single source of truth. Everything downstream is generated from this one asset — no double entry, no manual note-taking.', chips:['Zoom / Meet','Upload','Live capture','Auto-transcribe']},
+  {tag:'Module 1', h:'Tiered auto-summary', d:'A 1-paragraph TL;DR for quick recall, detailed structured notes for study, and a key-terms glossary — plus extracted examples and action items.', chips:['TL;DR','Detailed notes','Key terms','Action items','Examples used']},
+  {tag:'Module 2', h:'Automated quiz', d:'MCQs and scenario-based questions drawn from the same transcript. Scenario questions matter most for practical subjects. Adaptive difficulty in v2.', chips:['MCQ','Scenario','Instant scoring','Adaptive · v2']},
+  {tag:'Module 3', h:'Practical assignment', d:'An applied task ("draft a Google Ads campaign", "audit this site\'s SEO"), scored by an AI rubric evaluator with mentor spot-checks for creative work.', chips:['Rubric AI','Mentor review','Applied task','Feedback']},
+  {tag:'Module 4', h:'Micro-revision bytes', d:'Auto-clipped 60–90s revision videos or carousel text bytes per key concept — built for spaced repetition and mobile.', chips:['60–90s clips','Carousels','Spaced repetition','Mobile-first']},
+  {tag:'Modules 5 + 6', h:'Progress → Placement gate', d:'Signals from quizzes, assignments, and engagement roll up per student and cohort — then feed a company-configurable eligibility engine that auto-flags who\'s job-ready.', chips:['Progress tracking','Cohort analytics','Eligibility rules','Auto-flag']},
+];
+const loopDetail = document.getElementById('loopDetail');
+function renderLoop(i){
+  const d = loopData[i];
+  loopDetail.innerHTML = `<div class="loop-detail"><span class="tag">${d.tag}</span><h3>${d.h}</h3><p style="color:var(--muted)">${d.d}</p><div style="margin-top:14px">${d.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>`;
+}
+document.querySelectorAll('.loop-stage').forEach(s=>{
+  s.addEventListener('click',()=>{
+    document.querySelectorAll('.loop-stage').forEach(x=>x.classList.remove('active'));
+    s.classList.add('active');
+    renderLoop(+s.dataset.stage);
+  });
+});
+renderLoop(0);
+
+/* ---------- MODULES ---------- */
+const modules = [
+  {title:'Auto-summary generation', desc:'Feed the recording or transcript to an LLM and get a structured, tiered summary — so students never rely on scattered handwritten notes again.',
+   feats:['1-paragraph TL;DR for fast recall','Detailed structured notes','Key-terms glossary','Extracted examples & action items','Exportable / searchable'], v2:[]},
+  {title:'Automated quiz', desc:'Generated from the same transcript — MCQs plus scenario-based questions that test applied understanding, not just recall.',
+   feats:['Multiple-choice questions','Scenario-based questions','Instant scoring & explanations','Per-question difficulty tags'], v2:['Adaptive difficulty from past performance']},
+  {title:'Practical assignment', desc:'The hardest to automate — "practical" means applied, evaluative work. Gradely assists the grader rather than replacing them.',
+   feats:['Applied task briefs per session','Rubric-based AI evaluator','Mentor / human spot-checks','Structured feedback to student'], v2:['Peer review workflows','Auto-plagiarism / AI-use signals']},
+  {title:'Lecture short bytes', desc:'Auto-clipped 60–90s revision videos or carousel text bytes per key concept — engineered for spaced repetition on mobile.',
+   feats:['Concept-level 60–90s clips','Carousel-style text bytes','Spaced-repetition scheduling','Mobile-first revision feed'], v2:['Auto re-recorded narration','Personalized revision queue']},
+  {title:'Instructor dashboard', desc:'Per-student and per-cohort visibility — the operating view instructors actually run their week from.',
+   feats:['Quiz scores per student & cohort','Assignment completion & quality','Engagement (bytes watched)','Time-to-completion trends','At-risk student flags'], v2:['Predictive drop-off alerts']},
+  {title:'Placement eligibility engine', desc:'The differentiator. Company-side configurable criteria that auto-flag eligible students — closing the loop from learning to hiring.',
+   feats:['Company-configurable criteria','Quiz / assignment / engagement gates','Automatic eligibility flagging','Cohort → candidate pipeline'], v2:['Benchmarked job-readiness score','Employer candidate portal']},
+];
+const panelHost = document.getElementById('modulePanels');
+panelHost.innerHTML = modules.map((m,i)=>`
+  <div class="tab-panel ${i===0?'active':''}" data-panel="${i}">
+    <div class="module-grid">
+      <div>
+        <h3>${m.title}</h3>
+        <p style="color:var(--muted)">${m.desc}</p>
+        <ul class="feature-list">
+          ${m.feats.map(f=>`<li><span class="ck">✓</span> ${f}</li>`).join('')}
+          ${m.v2.map(f=>`<li><span class="ck" style="color:var(--warn)">✦</span> ${f}<span class="pill-v2">v2</span></li>`).join('')}
+        </ul>
+      </div>
+      <div class="mock">
+        <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">preview</span></div>
+        <div class="mock-body" style="min-height:210px;color:var(--muted);font-size:.9rem;">${modulePreview(i)}</div>
+      </div>
+    </div>
+  </div>`).join('');
+
+function modulePreview(i){
+  switch(i){
+    case 0: return `<div style="font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--brand-2)">TL;DR</div><p style="margin:6px 0 14px">Session covered the paid-media funnel: how to structure campaigns, set bidding strategy, and read core metrics (CTR, CPC, ROAS).</p><div style="font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--brand-2)">KEY TERMS</div><div style="margin-top:6px">${['ROAS','CPC','Quality Score','Bid strategy','Attribution'].map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
+    case 1: return `<div style="font-weight:700;margin-bottom:10px">Scenario Q</div><p style="margin:0 0 12px">A campaign has high CTR but low ROAS. What's the most likely issue?</p>${['Landing page / offer mismatch','Bid too low','Wrong ad schedule'].map((o,k)=>`<div class="quiz-opt" style="cursor:default"><span class="key">${'ABC'[k]}</span>${o}</div>`).join('')}`;
+    case 2: return `<div style="font-weight:700;margin-bottom:6px">Assignment</div><p style="margin:0 0 12px">Draft a search campaign for a D2C coffee brand, ₹50k/mo budget.</p><div style="font-size:.78rem;color:var(--faint);margin-bottom:6px">RUBRIC (AI-scored)</div>${[['Audience & keywords','8/10'],['Budget allocation','7/10'],['Ad copy quality','mentor ✓']].map(r=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--border)"><span>${r[0]}</span><b style="color:var(--good)">${r[1]}</b></div>`).join('')}`;
+    case 3: return `<div style="display:flex;gap:12px;flex-wrap:wrap">${['ROAS in 90s','Bidding basics','Reading CTR','Attribution 101'].map(t=>`<div style="flex:1 1 40%;min-width:120px;background:var(--bg-3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:1.6rem">▶</div><div style="font-size:.82rem;margin-top:6px">${t}</div><div style="font-size:.7rem;color:var(--faint)">0:${60+Math.floor(Math.random()*30)}</div></div>`).join('')}`;
+    case 4: return `<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="font-weight:700">Batch 07</span><span style="color:var(--good);font-weight:700">78% avg</span></div>${[['Aisha',92],['Rohan',71],['Meera',58],['Karan',84]].map(s=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="width:60px;font-size:.85rem">${s[0]}</span><span class="mini-bar" style="flex:1;width:auto"><span style="width:${s[1]}%"></span></span><b style="font-size:.82rem">${s[1]}%</b></div>`).join('')}`;
+    case 5: return `<div style="text-align:center;padding:14px 0"><div style="font-size:.78rem;color:var(--faint)">Acme Corp gate</div><div style="font-size:2rem;font-weight:850;margin:6px 0">5 <span style="font-size:1rem;color:var(--faint)">of 8 eligible</span></div><div style="margin-top:8px">${['80%+ quiz','All assignments','Top 30% engagement'].map(t=>`<span class="chip">${t}</span>`).join('')}</div></div>`;
+  }
+}
+document.querySelectorAll('#moduleTabs .tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#moduleTabs .tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelector(`.tab-panel[data-panel="${t.dataset.tab}"]`).classList.add('active');
+  });
+});
+
+/* ---------- QUIZ DEMO ---------- */
+const quiz = [
+  {q:'A search campaign shows high CTR but low ROAS. What is the MOST likely cause?',
+   opts:['The landing page or offer doesn\'t match the ad promise','The daily budget is set too high','Too many negative keywords','Ad extensions are disabled'],
+   correct:0, why:'High CTR means the ad is compelling, but low ROAS means clicks aren\'t converting — almost always a landing-page / offer mismatch downstream of the click.'},
+  {q:'Which metric best tells you how efficiently ad spend turns into revenue?',
+   opts:['CTR (click-through rate)','ROAS (return on ad spend)','Impressions','Quality Score'],
+   correct:1, why:'ROAS = revenue ÷ ad spend, the direct efficiency measure. CTR and impressions are upper-funnel signals only.'},
+  {q:'For a brand-new product with no conversion data, the safest starting bid strategy is:',
+   opts:['Target ROAS from day one','Maximize conversions with no data','Manual CPC / max clicks to gather data first','Pause all bidding'],
+   correct:2, why:'Automated value-based strategies need conversion data to learn. Start manual/max-clicks to gather signal, then switch to Target ROAS.'},
+];
+let qIndex=0, qScore=0;
+const quizHost=document.getElementById('quizHost'), quizBar=document.getElementById('quizBar');
+function renderQuiz(){
+  if(qIndex>=quiz.length){
+    const pct=Math.round(qScore/quiz.length*100);
+    quizBar.style.width='100%';
+    quizHost.innerHTML=`<div style="text-align:center;padding:20px 0">
+      <div style="font-size:3rem">${pct>=67?'🎉':'📚'}</div>
+      <h3 style="margin:10px 0 4px">You scored ${qScore}/${quiz.length} · ${pct}%</h3>
+      <p style="color:var(--muted)">In Gradely this score, plus scenario reasoning, feeds straight into your progress profile and the placement gate.</p>
+      <button class="btn btn-ghost" id="qRetry" style="margin-top:10px">↻ Retry</button></div>`;
+    document.getElementById('qRetry').onclick=()=>{qIndex=0;qScore=0;renderQuiz();};
+    return;
+  }
+  const item=quiz[qIndex];
+  quizBar.style.width=(qIndex/quiz.length*100)+'%';
+  quizHost.innerHTML=`<div class="quiz-q">Q${qIndex+1}. ${item.q}</div>
+    <div id="opts">${item.opts.map((o,k)=>`<div class="quiz-opt" data-k="${k}"><span class="key">${'ABCD'[k]}</span>${o}</div>`).join('')}</div>
+    <div class="quiz-feedback" id="qfb"></div>`;
+  quizHost.querySelectorAll('.quiz-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      if(quizHost.dataset.answered)return;
+      quizHost.dataset.answered='1';
+      const k=+opt.dataset.k;
+      const correct=item.correct;
+      quizHost.querySelectorAll('.quiz-opt').forEach(o=>{
+        if(+o.dataset.k===correct)o.classList.add('correct');
+        else if(+o.dataset.k===k)o.classList.add('wrong');
+      });
+      if(k===correct)qScore++;
+      const fb=document.getElementById('qfb');
+      fb.className='quiz-feedback show';
+      fb.style.background = k===correct?'color-mix(in srgb,var(--good) 14%,transparent)':'color-mix(in srgb,var(--bad) 12%,transparent)';
+      fb.innerHTML=`<b>${k===correct?'✓ Correct.':'✗ Not quite.'}</b> ${item.why} <div style="margin-top:12px"><button class="btn btn-primary" id="qNext" style="padding:9px 18px">${qIndex===quiz.length-1?'See results →':'Next question →'}</button></div>`;
+      document.getElementById('qNext').onclick=()=>{qIndex++;delete quizHost.dataset.answered;renderQuiz();};
+    });
+  });
+}
+renderQuiz();
+
+/* ---------- PLACEMENT SIMULATOR ---------- */
+const students=[
+  {n:'Aisha K.',quiz:92,assign:100,eng:95,mentor:true},
+  {n:'Rohan M.',quiz:81,assign:100,eng:72,mentor:true},
+  {n:'Meera S.',quiz:74,assign:80,eng:66,mentor:false},
+  {n:'Karan P.',quiz:88,assign:100,eng:81,mentor:true},
+  {n:'Dev A.',quiz:69,assign:60,eng:44,mentor:false},
+  {n:'Nisha R.',quiz:85,assign:100,eng:90,mentor:true},
+  {n:'Rahul V.',quiz:58,assign:40,eng:30,mentor:false},
+  {n:'Tara J.',quiz:79,assign:100,eng:58,mentor:false},
+];
+const els={quiz:document.getElementById('sQuiz'),assign:document.getElementById('sAssign'),eng:document.getElementById('sEng'),mentor:document.getElementById('sMentor')};
+const vals={quiz:document.getElementById('vQuiz'),assign:document.getElementById('vAssign'),eng:document.getElementById('vEng')};
+const rowsHost=document.getElementById('studentRows'), simN=document.getElementById('simN');
+function evalSim(){
+  const q=+els.quiz.value, a=+els.assign.value, e=+els.eng.value, m=els.mentor.checked;
+  vals.quiz.textContent=q; vals.assign.textContent=a;
+  vals.eng.textContent=100-e; // "top X%" — higher slider = stricter
+  let count=0;
+  rowsHost.innerHTML=students.map(s=>{
+    const ok = s.quiz>=q && s.assign>=a && s.eng>=e && (!m || s.mentor);
+    if(ok)count++;
+    return `<tr class="${ok?'eligible':''}">
+      <td><b>${s.n}</b></td>
+      <td>${s.quiz}%</td>
+      <td>${s.assign}%</td>
+      <td><span class="mini-bar"><span style="width:${s.eng}%"></span></span>${s.eng}</td>
+      <td>${s.mentor?'✅':'—'}</td>
+      <td><span class="flag ${ok?'yes':'no'}">${ok?'ELIGIBLE':'—'}</span></td>
+    </tr>`;
+  }).join('');
+  simN.textContent=count;
+}
+Object.values(els).forEach(el=>el.addEventListener('input',evalSim));
+evalSim();
+
+/* ---------- DASHBOARD BARS ---------- */
+const barData=[62,68,65,74,71,78,76,82];
+const barsHost=document.getElementById('dashBars');
+barsHost.innerHTML=barData.map((v,i)=>`<div class="bcol"><div class="bar" data-h="${v}" style="height:0"></div><small>S${i+1}</small></div>`).join('');
+
+/* ---------- DECISIONS ---------- */
+const decisions=[
+  {q:'Build vs. buy the AI pipeline?',
+   opts:[['Buy / API-first (LLM + ASR APIs)','Fastest to ship, pay per session; margins compress at scale.',true],['Build in-house models','Better unit economics later, heavy upfront cost — premature for v1.',false]]},
+  {q:'How automated is assignment grading?',
+   opts:[['Rubric-assisted, mentor-in-the-loop','Trustworthy for practical work; makes mentors 5× faster.',true],['Fully automated AI grading','Scales but risks trust collapse on creative/applied tasks.',false]]},
+  {q:'Standalone product or a layer on existing LMS?',
+   opts:[['Layer on top of Zoom/Meet/LMS','Low switching cost, faster pilots, you still own the data.',true],['Full rip-and-replace LMS','Bigger surface area, slower sales, higher build cost.',false]]},
+  {q:'Who owns placement criteria — you or companies?',
+   opts:[['Company-configurable gates','Flexible, defensible, and the true differentiator.',true],['One fixed Gradely standard','Simpler but rigid; won\'t fit varied hiring bars.',false]]},
+  {q:'What is the wedge / first vertical?',
+   opts:[['One practical vertical (e.g. digital marketing)','Deep, credible, scenario quizzes shine; easier hiring partners.',true],['Horizontal, all subjects at once','Thin everywhere, weak signal, hard to prove outcomes.',false]]},
+  {q:'How do you handle student performance data & consent?',
+   opts:[['Explicit opt-in before sharing with employers','Builds trust, keeps you compliant, protects the moat.',true],['Auto-share all data by default','Faster funnel but a privacy & trust liability.',false]]},
+];
+document.getElementById('decisionHost').innerHTML=decisions.map((d,i)=>`
+  <details class="decision reveal" ${i===0?'open':''}>
+    <summary><span class="qn">${i+1}</span> ${d.q} <span class="arr">▸</span></summary>
+    <div class="opts">
+      ${d.opts.map(o=>`<div class="opt ${o[2]?'rec':''}"><b>${o[0]}</b> — ${o[1]}</div>`).join('')}
+    </div>
+  </details>`).join('');
+
+/* ---------- REVEAL ON SCROLL + BARS ---------- */
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      if(e.target.id==='dashboard'){
+        barsHost.querySelectorAll('.bar').forEach(b=>{b.style.height=b.dataset.h+'%';});
+      }
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+io.observe(document.getElementById('dashboard'));
+</script>
+</body>
+</html>
