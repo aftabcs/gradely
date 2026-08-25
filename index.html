@@ -5,286 +5,358 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gradely — Proposal</title>
 <meta name="description" content="Gradely: the post-lecture learning loop that closes the gap from lecture to placement." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0b0d12;
-    --bg-2: #11141c;
-    --bg-3: #161a24;
-    --surface: #191e2a;
-    --border: #262c3a;
-    --text: #e8ecf4;
-    --muted: #9aa4b8;
-    --faint: #6b7488;
-    --brand: #6d5efc;
-    --brand-2: #22d3ee;
-    --accent: #f471b5;
+    /* light (default) */
+    --bg: #f4f4f7;
+    --bg-tint: #eeeef4;
+    --surface: #ffffff;
+    --surface-2: #fbfbfd;
+    --glass: rgba(255,255,255,.72);
+    --line: rgba(17,20,34,.09);
+    --line-2: rgba(17,20,34,.06);
+    --text: #12141c;
+    --muted: #565c6e;
+    --faint: #8b90a0;
+    --brand: #5b53f0;
+    --brand-ink: #4a42d8;
+    --brand-2: #12a8bd;
+    --accent: #ff6a4d;
+    --good: #12a875;
+    --warn: #e0932a;
+    --bad: #e5484d;
+    --grad: linear-gradient(110deg, #5b53f0 0%, #7a5cf5 34%, #12a8bd 78%);
+    --grad-warm: linear-gradient(120deg, #7a5cf5, #ff6a4d);
+    --sh-sm: 0 1px 2px rgba(17,20,34,.05), 0 2px 8px rgba(17,20,34,.04);
+    --sh-md: 0 4px 12px rgba(17,20,34,.06), 0 12px 32px -12px rgba(17,20,34,.14);
+    --sh-lg: 0 8px 24px rgba(17,20,34,.07), 0 32px 60px -24px rgba(30,30,80,.22);
+    --sh-brand: 0 10px 30px -8px rgba(91,83,240,.45);
+    --r: 20px; --r-sm: 12px; --r-lg: 28px; --r-pill: 999px;
+    --maxw: 1180px;
+    --mesh-1: rgba(122,92,245,.20);
+    --mesh-2: rgba(18,168,189,.16);
+    --mesh-3: rgba(255,106,77,.13);
+    --grain-op: .04;
+  }
+  [data-theme="dark"] {
+    --bg: #08080d;
+    --bg-tint: #0d0e15;
+    --surface: #121420;
+    --surface-2: #0f111a;
+    --glass: rgba(18,20,32,.62);
+    --line: rgba(255,255,255,.10);
+    --line-2: rgba(255,255,255,.06);
+    --text: #edeff6;
+    --muted: #a2a9bd;
+    --faint: #6a7186;
+    --brand: #7d75ff;
+    --brand-ink: #a79fff;
+    --brand-2: #2dd4e6;
+    --accent: #ff7a5f;
     --good: #34d399;
     --warn: #fbbf24;
     --bad: #f87171;
-    --shadow: 0 20px 60px -20px rgba(0,0,0,.6);
-    --radius: 16px;
-    --maxw: 1160px;
-  }
-  [data-theme="light"] {
-    --bg: #f6f7fb;
-    --bg-2: #ffffff;
-    --bg-3: #f0f2f8;
-    --surface: #ffffff;
-    --border: #e4e8f0;
-    --text: #10131a;
-    --muted: #55607a;
-    --faint: #8a93a8;
-    --shadow: 0 20px 50px -24px rgba(30,40,80,.25);
+    --grad: linear-gradient(110deg, #8b83ff 0%, #a48cff 34%, #2dd4e6 82%);
+    --grad-warm: linear-gradient(120deg, #a48cff, #ff7a5f);
+    --sh-sm: 0 1px 2px rgba(0,0,0,.4);
+    --sh-md: 0 8px 24px -8px rgba(0,0,0,.6);
+    --sh-lg: 0 20px 60px -20px rgba(0,0,0,.75);
+    --sh-brand: 0 12px 34px -8px rgba(125,117,255,.5);
+    --mesh-1: rgba(125,117,255,.26);
+    --mesh-2: rgba(45,212,230,.18);
+    --mesh-3: rgba(255,122,95,.14);
+    --grain-op: .05;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16px;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.62;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    letter-spacing: -.005em;
   }
-  a { color: inherit; }
-  h1,h2,h3,h4 { line-height: 1.15; margin: 0 0 .4em; letter-spacing: -.02em; }
-  h2 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); }
-  h3 { font-size: 1.25rem; }
+  /* film grain overlay */
+  body::after {
+    content:""; position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+    opacity: var(--grain-op); mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a { color: inherit; text-decoration: none; }
+  h1,h2,h3,h4 { font-family: "Space Grotesk", sans-serif; line-height: 1.08; margin: 0 0 .4em; letter-spacing: -.03em; font-weight: 600; }
+  h2 { font-size: clamp(1.9rem, 3.8vw, 2.85rem); }
+  h3 { font-size: 1.3rem; }
   p { margin: 0 0 1rem; }
   .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
-  section { padding: 84px 0; position: relative; }
+  section { padding: 108px 0; position: relative; }
   .eyebrow {
-    display: inline-block; font-size: .78rem; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--brand-2); margin-bottom: 14px;
+    display: inline-flex; align-items: center; gap: 9px; font-family: "JetBrains Mono", monospace;
+    font-size: .72rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--brand-ink); margin-bottom: 18px;
   }
-  .lede { color: var(--muted); font-size: 1.12rem; max-width: 62ch; }
-  .grid { display: grid; gap: 20px; }
+  .eyebrow::before { content:""; width: 22px; height: 1.5px; background: currentColor; opacity: .55; border-radius: 2px; }
+  .lede { color: var(--muted); font-size: 1.16rem; max-width: 64ch; letter-spacing: -.01em; }
 
-  /* NAV */
+  /* NAV — floating glass pill */
   nav {
-    position: sticky; top: 0; z-index: 50;
-    backdrop-filter: blur(14px);
-    background: color-mix(in srgb, var(--bg) 78%, transparent);
-    border-bottom: 1px solid var(--border);
+    position: sticky; top: 14px; z-index: 60; margin: 14px auto 0; max-width: calc(var(--maxw) - 8px);
+    padding: 0 8px;
   }
-  .nav-inner { display: flex; align-items: center; gap: 20px; height: 62px; }
-  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; letter-spacing: -.03em; }
-  .logo .dot { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, var(--brand), var(--brand-2)); box-shadow: 0 4px 14px -2px var(--brand); display:grid; place-items:center; color:#fff; font-size: .8rem; }
-  .nav-links { display: flex; gap: 4px; margin-left: auto; }
+  .nav-inner {
+    display: flex; align-items: center; gap: 18px; height: 60px; padding: 0 10px 0 18px;
+    background: var(--glass); backdrop-filter: blur(20px) saturate(1.5); -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid var(--line); border-radius: var(--r-pill); box-shadow: var(--sh-md);
+  }
+  .logo { display: flex; align-items: center; gap: 11px; font-family:"Space Grotesk"; font-weight: 700; font-size: 1.16rem; letter-spacing: -.04em; }
+  .logo .dot { width: 30px; height: 30px; border-radius: 9px; background: var(--grad); box-shadow: var(--sh-brand); display:grid; place-items:center; color:#fff; font-family:"Space Grotesk"; font-weight:700; font-size: .95rem; }
+  .nav-links { display: flex; gap: 2px; margin-left: auto; }
   .nav-links a {
-    text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 600;
-    padding: 8px 12px; border-radius: 9px; transition: .18s;
+    color: var(--muted); font-size: .89rem; font-weight: 500; padding: 8px 13px; border-radius: var(--r-pill); transition: .18s;
   }
-  .nav-links a:hover { color: var(--text); background: var(--bg-3); }
+  .nav-links a:hover { color: var(--text); background: var(--bg-tint); }
   .icon-btn {
-    background: var(--bg-3); border: 1px solid var(--border); color: var(--text);
-    width: 38px; height: 38px; border-radius: 10px; cursor: pointer; font-size: 1rem;
-    display: grid; place-items: center; transition: .18s;
+    background: var(--bg-tint); border: 1px solid var(--line); color: var(--text);
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+    display: grid; place-items: center; transition: .2s; flex: 0 0 auto;
   }
-  .icon-btn:hover { border-color: var(--brand); }
-  @media (max-width: 860px){ .nav-links { display: none; } }
+  .icon-btn:hover { transform: rotate(-18deg) scale(1.05); border-color: var(--brand); }
+  @media (max-width: 900px){ .nav-links { display: none; } }
 
   /* HERO */
-  .hero { padding-top: 70px; padding-bottom: 40px; overflow: hidden; }
-  .hero-glow {
-    position: absolute; inset: -30% 0 auto 0; height: 620px; z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(600px 340px at 22% 20%, color-mix(in srgb, var(--brand) 34%, transparent), transparent 70%),
-      radial-gradient(520px 320px at 82% 8%, color-mix(in srgb, var(--brand-2) 26%, transparent), transparent 70%);
-    filter: blur(6px);
+  .hero { padding-top: 64px; padding-bottom: 44px; overflow: clip; }
+  .mesh {
+    position: absolute; inset: -20% -10% auto -10%; height: 760px; z-index: 0; pointer-events: none; filter: blur(30px);
   }
+  .mesh::before, .mesh::after {
+    content:""; position:absolute; border-radius: 50%;
+  }
+  .mesh::before {
+    width: 620px; height: 520px; left: 8%; top: 0;
+    background: radial-gradient(circle at 40% 40%, var(--mesh-1), transparent 62%);
+    animation: float1 16s ease-in-out infinite;
+  }
+  .mesh::after {
+    width: 560px; height: 500px; right: 6%; top: -6%;
+    background: radial-gradient(circle at 60% 40%, var(--mesh-2), transparent 62%);
+    animation: float2 20s ease-in-out infinite;
+  }
+  .mesh i {
+    position:absolute; width: 420px; height: 380px; left: 44%; top: 26%; border-radius:50%;
+    background: radial-gradient(circle, var(--mesh-3), transparent 62%); animation: float1 24s ease-in-out infinite reverse;
+  }
+  @keyframes float1 { 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(40px,30px) scale(1.08);} }
+  @keyframes float2 { 0%,100%{ transform: translate(0,0) scale(1);} 50%{ transform: translate(-46px,24px) scale(1.06);} }
   .hero .wrap { position: relative; z-index: 1; }
   .badge {
-    display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; font-weight: 600;
-    color: var(--muted); background: var(--surface); border: 1px solid var(--border);
-    padding: 7px 14px; border-radius: 999px; margin-bottom: 22px;
+    display: inline-flex; align-items: center; gap: 9px; font-size: .8rem; font-weight: 500;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+    padding: 7px 15px 7px 11px; border-radius: var(--r-pill); margin-bottom: 26px; box-shadow: var(--sh-sm);
   }
-  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 var(--good); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 70%,transparent)} 70%{box-shadow:0 0 0 8px transparent} 100%{box-shadow:0 0 0 0 transparent} }
-  .hero h1 { font-size: clamp(2.5rem, 6.4vw, 4.6rem); font-weight: 850; letter-spacing: -.04em; margin-bottom: 20px; }
-  .hero h1 .grad { background: linear-gradient(115deg, var(--brand) 10%, var(--brand-2) 60%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero p.lede { font-size: 1.25rem; }
-  .cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 30px; }
+  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 var(--good); animation: pulse 2.4s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 65%,transparent)} 70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent} }
+  .hero h1 { font-size: clamp(2.7rem, 6.6vw, 5rem); font-weight: 700; letter-spacing: -.045em; margin-bottom: 22px; }
+  .hero h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lede { font-size: 1.28rem; max-width: 60ch; }
+  .cta-row { display: flex; gap: 13px; flex-wrap: wrap; margin-top: 34px; }
   .btn {
-    display: inline-flex; align-items: center; gap: 9px; text-decoration: none; cursor: pointer;
-    font-weight: 700; font-size: .96rem; padding: 13px 22px; border-radius: 12px; border: 1px solid transparent; transition: .2s;
+    display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+    font-family: "Space Grotesk"; font-weight: 600; font-size: .96rem; padding: 13px 24px; border-radius: var(--r-pill); border: 1px solid transparent; transition: .22s cubic-bezier(.2,.8,.2,1);
   }
-  .btn-primary { background: linear-gradient(135deg, var(--brand), #8b7cff); color: #fff; box-shadow: 0 10px 30px -8px var(--brand); }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 38px -8px var(--brand); }
-  .btn-ghost { background: var(--surface); border-color: var(--border); color: var(--text); }
-  .btn-ghost:hover { border-color: var(--brand); }
-  .stat-row { display: flex; gap: 34px; flex-wrap: wrap; margin-top: 48px; padding-top: 30px; border-top: 1px solid var(--border); }
-  .stat b { display: block; font-size: 2rem; font-weight: 800; letter-spacing: -.03em; background: linear-gradient(120deg,var(--text),var(--muted)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .stat span { color: var(--faint); font-size: .84rem; }
+  .btn-primary { background: var(--grad); color: #fff; box-shadow: var(--sh-brand); position: relative; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -8px rgba(91,83,240,.55); }
+  .btn-ghost { background: var(--surface); border-color: var(--line); color: var(--text); box-shadow: var(--sh-sm); }
+  .btn-ghost:hover { border-color: var(--brand); transform: translateY(-2px); }
+  .stat-row { display: flex; gap: 40px; flex-wrap: wrap; margin-top: 56px; padding-top: 34px; border-top: 1px solid var(--line); }
+  .stat b { display: block; font-family:"Space Grotesk"; font-size: 2.15rem; font-weight: 700; letter-spacing: -.04em; }
+  .stat span { color: var(--faint); font-size: .84rem; letter-spacing: 0; }
 
-  /* PROBLEM */
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 18px; }
+  /* generic cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 18px; }
   .card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 26px; transition: .22s; position: relative;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 28px;
+    transition: .26s cubic-bezier(.2,.8,.2,1); position: relative; box-shadow: var(--sh-sm); overflow: hidden;
   }
-  .card:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--brand) 50%, var(--border)); box-shadow: var(--shadow); }
-  .card .ic { font-size: 1.5rem; margin-bottom: 12px; }
-  .card h3 { font-size: 1.05rem; }
+  .card::before {
+    content:""; position:absolute; inset:0; border-radius: inherit; padding:1px; pointer-events:none; opacity:0; transition:.26s;
+    background: var(--grad); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  .card:hover { transform: translateY(-5px); box-shadow: var(--sh-lg); }
+  .card:hover::before { opacity: .8; }
+  .card .ic { font-size: 1.6rem; margin-bottom: 14px; display:inline-grid; place-items:center; width:52px; height:52px; border-radius: 14px; background: var(--bg-tint); }
+  .card h3 { font-size: 1.08rem; }
   .card p { color: var(--muted); font-size: .93rem; margin: 0; }
 
   /* LOOP */
-  .loop-wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; }
-  @media (max-width: 900px){ .loop-wrap { grid-template-columns: 1fr; } }
+  .loop-wrap { display: grid; grid-template-columns: 1.02fr 1fr; gap: 44px; align-items: center; }
+  @media (max-width: 940px){ .loop-wrap { grid-template-columns: 1fr; } }
   .loop-stage {
-    display: flex; gap: 16px; padding: 16px; border-radius: 14px; cursor: pointer;
-    border: 1px solid transparent; transition: .2s; align-items: flex-start;
+    display: flex; gap: 16px; padding: 15px 16px; border-radius: var(--r-sm); cursor: pointer;
+    border: 1px solid transparent; transition: .22s; align-items: flex-start;
   }
-  .loop-stage:hover { background: var(--bg-3); }
-  .loop-stage.active { background: var(--surface); border-color: var(--brand); box-shadow: var(--shadow); }
+  .loop-stage:hover { background: var(--surface); box-shadow: var(--sh-sm); }
+  .loop-stage.active { background: var(--surface); border-color: var(--line); box-shadow: var(--sh-md); }
   .loop-stage .num {
-    flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
-    font-weight: 800; font-size: .9rem; background: var(--bg-3); border: 1px solid var(--border); color: var(--muted);
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+    font-family:"Space Grotesk"; font-weight: 700; font-size: .92rem; background: var(--bg-tint); color: var(--faint); transition:.22s;
   }
-  .loop-stage.active .num { background: linear-gradient(135deg,var(--brand),var(--brand-2)); color: #fff; border-color: transparent; }
-  .loop-stage h4 { margin: 4px 0 2px; font-size: 1rem; }
-  .loop-stage p { margin: 0; color: var(--muted); font-size: .88rem; }
+  .loop-stage.active .num { background: var(--grad); color: #fff; box-shadow: var(--sh-brand); }
+  .loop-stage h4 { margin: 5px 0 3px; font-size: 1.02rem; }
+  .loop-stage p { margin: 0; color: var(--muted); font-size: .89rem; }
   .loop-visual {
-    background: var(--bg-2); border: 1px solid var(--border); border-radius: 20px; padding: 30px;
-    min-height: 340px; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, var(--surface), var(--surface-2)); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 34px;
+    min-height: 356px; position: relative; overflow: hidden; box-shadow: var(--sh-lg);
   }
-  .loop-detail { animation: fade .4s ease; }
-  @keyframes fade { from { opacity: 0; transform: translateY(8px);} to {opacity:1; transform: none;} }
-  .loop-detail .tag { font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color: var(--brand-2); }
-  .loop-detail h3 { margin: 8px 0 12px; }
-  .chip { display:inline-block; font-size:.78rem; padding: 5px 11px; border-radius: 999px; background: var(--bg-3); border:1px solid var(--border); color: var(--muted); margin: 0 6px 6px 0; }
-  .ring { position:absolute; right:-60px; bottom:-60px; width: 200px; height:200px; border-radius:50%; border: 2px dashed var(--border); opacity:.5;}
+  .loop-detail { animation: fade .45s cubic-bezier(.2,.8,.2,1); position: relative; z-index:1; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: none;} }
+  .loop-detail .tag { font-family:"JetBrains Mono"; font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color: var(--brand-ink); }
+  .loop-detail h3 { margin: 10px 0 12px; font-size: 1.5rem; }
+  .chip { display:inline-block; font-size:.78rem; font-weight:500; padding: 6px 13px; border-radius: var(--r-pill); background: var(--bg-tint); border:1px solid var(--line-2); color: var(--muted); margin: 0 6px 7px 0; }
+  .ring { position:absolute; right:-70px; bottom:-70px; width: 230px; height:230px; border-radius:50%; border: 1.5px dashed var(--line); opacity:.6;}
+  .ring::after { content:""; position:absolute; inset:34px; border-radius:50%; border:1.5px dashed var(--line);}
 
-  /* MODULES tabs */
-  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  /* TABS */
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
   .tab {
-    padding: 10px 16px; border-radius: 11px; cursor: pointer; font-weight: 600; font-size: .9rem;
-    background: var(--surface); border: 1px solid var(--border); color: var(--muted); transition: .18s; display:flex; gap:8px; align-items:center;
+    padding: 10px 17px; border-radius: var(--r-pill); cursor: pointer; font-weight: 500; font-size: .89rem;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted); transition: .2s; display:flex; gap:8px; align-items:center; box-shadow: var(--sh-sm);
   }
-  .tab:hover { color: var(--text); }
-  .tab.active { background: linear-gradient(135deg, color-mix(in srgb,var(--brand) 24%, var(--surface)), var(--surface)); border-color: var(--brand); color: var(--text); }
-  .tab-panel { display: none; animation: fade .35s ease; }
+  .tab:hover { color: var(--text); transform: translateY(-1px); }
+  .tab.active { background: var(--grad); border-color: transparent; color: #fff; box-shadow: var(--sh-brand); }
+  .tab-panel { display: none; animation: fade .4s ease; }
   .tab-panel.active { display: block; }
-  .module-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 30px; align-items: start; }
-  @media (max-width: 880px){ .module-grid { grid-template-columns: 1fr; } }
-  .feature-list { list-style: none; padding: 0; margin: 18px 0 0; }
-  .feature-list li { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); color: var(--muted); font-size: .95rem; }
+  .module-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 34px; align-items: start; }
+  @media (max-width: 900px){ .module-grid { grid-template-columns: 1fr; } }
+  .module-grid > div:first-child h3 { font-size: 1.55rem; }
+  .feature-list { list-style: none; padding: 0; margin: 20px 0 0; }
+  .feature-list li { display: flex; gap: 13px; padding: 11px 0; border-bottom: 1px solid var(--line-2); color: var(--muted); font-size: .96rem; align-items:baseline;}
   .feature-list li:last-child { border-bottom: none; }
-  .feature-list .ck { color: var(--good); font-weight: 800; }
-  .pill-v2 { font-size:.68rem; font-weight:800; color: var(--warn); border:1px solid color-mix(in srgb,var(--warn) 50%,transparent); padding:1px 7px; border-radius: 999px; margin-left:6px; }
+  .feature-list .ck { color: var(--good); font-weight: 700; flex:0 0 auto; }
+  .pill-v2 { font-family:"JetBrains Mono"; font-size:.62rem; font-weight:600; color: var(--warn); border:1px solid color-mix(in srgb,var(--warn) 45%,transparent); padding:1px 7px; border-radius: var(--r-pill); margin-left:8px; }
 
-  /* Fake UI panels */
-  .mock {
-    background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
-  }
-  .mock-bar { display:flex; align-items:center; gap:7px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-3); }
+  /* MOCK windows */
+  .mock { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; box-shadow: var(--sh-lg); }
+  .mock-bar { display:flex; align-items:center; gap:7px; padding: 13px 18px; border-bottom: 1px solid var(--line-2); background: var(--surface-2); }
   .mock-bar i { width: 11px; height: 11px; border-radius: 50%; display:inline-block; }
-  .mock-bar .t { margin-left: 10px; font-size:.8rem; color: var(--faint); font-weight:600; }
-  .mock-body { padding: 20px; }
+  .mock-bar .t { margin-left: 10px; font-family:"JetBrains Mono"; font-size:.76rem; color: var(--faint); font-weight:500; }
+  .mock-body { padding: 22px; }
 
   /* QUIZ */
-  .quiz-q { font-weight: 700; font-size: 1.05rem; margin-bottom: 16px; }
+  .quiz-q { font-family:"Space Grotesk"; font-weight: 600; font-size: 1.12rem; margin-bottom: 18px; letter-spacing:-.02em; }
   .quiz-opt {
-    display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 12px;
-    border: 1px solid var(--border); background: var(--surface); cursor: pointer; margin-bottom: 10px; transition: .16s; font-size:.95rem;
+    display: flex; align-items: center; gap: 13px; padding: 14px 16px; border-radius: var(--r-sm);
+    border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; margin-bottom: 10px; transition: .18s; font-size:.96rem;
   }
-  .quiz-opt:hover { border-color: var(--brand); }
-  .quiz-opt .key { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: var(--bg-3); font-weight: 700; font-size: .82rem; flex:0 0 auto; }
-  .quiz-opt.correct { border-color: var(--good); background: color-mix(in srgb,var(--good) 14%, var(--surface)); }
-  .quiz-opt.wrong { border-color: var(--bad); background: color-mix(in srgb,var(--bad) 14%, var(--surface)); }
-  .quiz-opt.correct .key { background: var(--good); color:#04140d; }
-  .quiz-opt.wrong .key { background: var(--bad); color:#1a0505; }
-  .quiz-feedback { margin-top: 14px; padding: 14px; border-radius: 12px; font-size:.9rem; display:none; }
-  .quiz-feedback.show { display:block; }
-  .quiz-progress { height: 6px; background: var(--bg-3); border-radius: 999px; overflow: hidden; margin-bottom: 18px; }
-  .quiz-progress > div { height: 100%; background: linear-gradient(90deg,var(--brand),var(--brand-2)); width: 0; transition: width .5s; }
+  .quiz-opt:hover { border-color: var(--brand); transform: translateX(3px); }
+  .quiz-opt .key { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--bg-tint); font-family:"Space Grotesk"; font-weight: 700; font-size: .84rem; flex:0 0 auto; }
+  .quiz-opt.correct { border-color: var(--good); background: color-mix(in srgb,var(--good) 12%, var(--surface)); }
+  .quiz-opt.wrong { border-color: var(--bad); background: color-mix(in srgb,var(--bad) 12%, var(--surface)); }
+  .quiz-opt.correct .key { background: var(--good); color:#fff; }
+  .quiz-opt.wrong .key { background: var(--bad); color:#fff; }
+  .quiz-feedback { margin-top: 15px; padding: 15px 17px; border-radius: var(--r-sm); font-size:.92rem; display:none; border:1px solid var(--line-2); }
+  .quiz-feedback.show { display:block; animation: fade .35s ease; }
+  .quiz-progress { height: 6px; background: var(--bg-tint); border-radius: var(--r-pill); overflow: hidden; margin-bottom: 20px; }
+  .quiz-progress > div { height: 100%; background: var(--grad); width: 0; transition: width .5s cubic-bezier(.2,.8,.2,1); border-radius: inherit; }
 
   /* SIMULATOR */
-  .sim-grid { display: grid; grid-template-columns: 340px 1fr; gap: 26px; align-items: start; }
-  @media (max-width: 880px){ .sim-grid { grid-template-columns: 1fr; } }
-  .slider-row { margin-bottom: 22px; }
-  .slider-row label { display:flex; justify-content: space-between; font-size:.9rem; font-weight:600; margin-bottom:8px; }
-  .slider-row label b { color: var(--brand-2); }
-  input[type=range]{ -webkit-appearance:none; width:100%; height:6px; border-radius:999px; background: var(--bg-3); outline:none; }
-  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:20px;height:20px;border-radius:50%; background: linear-gradient(135deg,var(--brand),var(--brand-2)); cursor:pointer; box-shadow: 0 2px 8px -1px var(--brand); border: 2px solid var(--bg-2);}
-  .toggle-row { display:flex; align-items:center; justify-content: space-between; padding: 12px 0; border-top: 1px dashed var(--border); font-size:.9rem; font-weight:600;}
-  .switch { position: relative; width: 46px; height: 26px; }
+  .sim-grid { display: grid; grid-template-columns: 350px 1fr; gap: 26px; align-items: start; }
+  @media (max-width: 900px){ .sim-grid { grid-template-columns: 1fr; } }
+  .slider-row { margin-bottom: 24px; }
+  .slider-row label { display:flex; justify-content: space-between; font-size:.9rem; font-weight:500; margin-bottom:10px; }
+  .slider-row label b { font-family:"Space Grotesk"; color: var(--brand-ink); }
+  input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:var(--r-pill); background: var(--bg-tint); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:22px;height:22px;border-radius:50%; background: var(--grad); cursor:pointer; box-shadow: var(--sh-brand); border: 3px solid var(--surface);}
+  input[type=range]::-moz-range-thumb{ width:18px;height:18px;border-radius:50%; background: #5b53f0; cursor:pointer; border: 3px solid var(--surface);}
+  .toggle-row { display:flex; align-items:center; justify-content: space-between; padding: 14px 0; border-top: 1px solid var(--line-2); font-size:.9rem; font-weight:500;}
+  .switch { position: relative; width: 48px; height: 27px; flex:0 0 auto;}
   .switch input { display:none; }
-  .switch .track { position:absolute; inset:0; background: var(--bg-3); border:1px solid var(--border); border-radius: 999px; transition:.2s; cursor:pointer; }
-  .switch .track::after { content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background: var(--faint); transition:.2s; }
-  .switch input:checked + .track { background: linear-gradient(135deg,var(--brand),var(--brand-2)); border-color: transparent; }
-  .switch input:checked + .track::after { transform: translateX(20px); background:#fff; }
-  table.students { width:100%; border-collapse: collapse; font-size:.88rem; }
-  table.students th { text-align:left; color: var(--faint); font-weight:600; font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; padding: 10px 12px; border-bottom: 1px solid var(--border);}
-  table.students td { padding: 12px; border-bottom: 1px solid var(--border); }
-  table.students tr.eligible { background: color-mix(in srgb,var(--good) 8%, transparent); }
-  .flag { font-size:.72rem; font-weight:800; padding: 3px 9px; border-radius: 999px; }
-  .flag.yes { background: color-mix(in srgb,var(--good) 20%, transparent); color: var(--good); }
-  .flag.no { background: var(--bg-3); color: var(--faint); }
-  .mini-bar { height:7px; border-radius:999px; background: var(--bg-3); overflow:hidden; width: 70px; display:inline-block; vertical-align: middle; margin-right:8px;}
-  .mini-bar > span { display:block; height:100%; background: linear-gradient(90deg,var(--brand),var(--brand-2)); }
-  .sim-count { font-size: 2.2rem; font-weight: 850; letter-spacing:-.03em; }
+  .switch .track { position:absolute; inset:0; background: var(--bg-tint); border:1px solid var(--line); border-radius: var(--r-pill); transition:.22s; cursor:pointer; }
+  .switch .track::after { content:""; position:absolute; top:3px; left:3px; width:19px; height:19px; border-radius:50%; background: var(--faint); transition:.22s; }
+  .switch input:checked + .track { background: var(--grad); border-color: transparent; }
+  .switch input:checked + .track::after { transform: translateX(21px); background:#fff; }
+  table.students { width:100%; border-collapse: collapse; font-size:.89rem; }
+  table.students th { text-align:left; color: var(--faint); font-family:"JetBrains Mono"; font-weight:500; font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; padding: 11px 12px; border-bottom: 1px solid var(--line);}
+  table.students td { padding: 13px 12px; border-bottom: 1px solid var(--line-2); }
+  table.students tbody tr { transition:.2s; }
+  table.students tr.eligible { background: color-mix(in srgb,var(--good) 7%, transparent); }
+  .flag { font-family:"JetBrains Mono"; font-size:.66rem; font-weight:600; padding: 4px 10px; border-radius: var(--r-pill); letter-spacing:.03em; }
+  .flag.yes { background: color-mix(in srgb,var(--good) 16%, transparent); color: var(--good); }
+  .flag.no { background: var(--bg-tint); color: var(--faint); }
+  .mini-bar { height:7px; border-radius:var(--r-pill); background: var(--bg-tint); overflow:hidden; width: 66px; display:inline-block; vertical-align: middle; margin-right:9px;}
+  .mini-bar > span { display:block; height:100%; background: var(--grad); border-radius:inherit; }
+  .sim-count { font-family:"Space Grotesk"; font-size: 2.4rem; font-weight: 700; letter-spacing:-.04em; }
 
   /* DASHBOARD */
   .kpi-row { display:grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
-  @media (max-width:700px){ .kpi-row{ grid-template-columns: repeat(2,1fr);} }
-  .kpi { background: var(--surface); border:1px solid var(--border); border-radius: 14px; padding: 16px; }
-  .kpi .l { font-size:.76rem; color: var(--faint); text-transform:uppercase; letter-spacing:.06em; font-weight:600;}
-  .kpi .v { font-size: 1.7rem; font-weight: 800; letter-spacing:-.02em; margin-top:4px;}
-  .kpi .d { font-size:.78rem; font-weight:700; }
+  @media (max-width:720px){ .kpi-row{ grid-template-columns: repeat(2,1fr);} }
+  .kpi { background: var(--surface-2); border:1px solid var(--line); border-radius: var(--r-sm); padding: 18px; }
+  .kpi .l { font-family:"JetBrains Mono"; font-size:.66rem; color: var(--faint); text-transform:uppercase; letter-spacing:.07em; font-weight:500;}
+  .kpi .v { font-family:"Space Grotesk"; font-size: 1.85rem; font-weight: 700; letter-spacing:-.03em; margin-top:6px;}
+  .kpi .d { font-size:.78rem; font-weight:600; }
   .kpi .d.up { color: var(--good); } .kpi .d.down { color: var(--bad); }
-  .bars { display:flex; align-items: flex-end; gap: 10px; height: 150px; padding: 10px 4px 0;}
+  .bars { display:flex; align-items: flex-end; gap: 10px; height: 158px; padding: 10px 4px 0;}
   .bars .bcol { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end;}
-  .bars .bcol .bar { width: 100%; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg,var(--brand),color-mix(in srgb,var(--brand-2) 60%,var(--brand))); transition: height 1s cubic-bezier(.2,.8,.2,1); min-height: 4px;}
-  .bars .bcol small { color: var(--faint); font-size:.72rem; }
+  .bars .bcol .bar { width: 100%; border-radius: 8px 8px 4px 4px; background: linear-gradient(180deg,var(--brand),color-mix(in srgb,var(--brand-2) 55%,var(--brand))); transition: height 1.1s cubic-bezier(.2,.8,.2,1); min-height: 4px;}
+  .bars .bcol small { color: var(--faint); font-family:"JetBrains Mono"; font-size:.68rem; }
+  .panel { background: var(--surface-2); border:1px solid var(--line); border-radius: var(--r-sm); padding: 20px; }
 
   /* ANALYSIS */
-  .analysis-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  @media (max-width: 780px){ .analysis-grid { grid-template-columns: 1fr; } }
-  .anote { border-left: 3px solid var(--brand); padding: 4px 0 4px 18px; }
-  .anote.warnb { border-color: var(--warn); }
-  .anote.goodb { border-color: var(--good); }
-  .anote h4 { font-size: 1rem; margin-bottom: 6px; }
-  .anote p { color: var(--muted); font-size:.92rem; margin:0; }
+  .analysis-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px){ .analysis-grid { grid-template-columns: 1fr; } }
+  .anote { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--brand); border-radius: var(--r-sm); padding: 20px 22px; box-shadow: var(--sh-sm); transition:.24s; }
+  .anote:hover { transform: translateY(-3px); box-shadow: var(--sh-md); }
+  .anote.warnb { border-left-color: var(--warn); }
+  .anote.goodb { border-left-color: var(--good); }
+  .anote h4 { font-size: 1.04rem; margin-bottom: 8px; }
+  .anote p { color: var(--muted); font-size:.93rem; margin:0; }
 
   /* DECISIONS */
-  .decision { background: var(--surface); border:1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 14px; }
-  .decision summary { cursor: pointer; font-weight: 700; font-size: 1.02rem; list-style: none; display:flex; align-items:center; gap: 12px; }
+  .decision { background: var(--surface); border:1px solid var(--line); border-radius: var(--r-sm); padding: 22px 24px; margin-bottom: 12px; box-shadow: var(--sh-sm); transition:.2s; }
+  .decision[open] { box-shadow: var(--sh-md); }
+  .decision summary { cursor: pointer; font-family:"Space Grotesk"; font-weight: 600; font-size: 1.05rem; list-style: none; display:flex; align-items:center; gap: 14px; letter-spacing:-.02em; }
   .decision summary::-webkit-details-marker { display:none; }
-  .decision summary .qn { flex:0 0 auto; width:28px;height:28px;border-radius:8px; background: var(--bg-3); display:grid;place-items:center; font-size:.8rem; font-weight:800; color: var(--brand-2);}
-  .decision summary .arr { margin-left:auto; color: var(--faint); transition:.2s; }
-  .decision[open] summary .arr { transform: rotate(90deg); }
-  .decision .opts { margin-top: 16px; display:grid; gap: 10px; }
-  .decision .opt { padding: 12px 14px; border-radius: 10px; background: var(--bg-2); border:1px solid var(--border); font-size:.9rem; }
+  .decision summary .qn { flex:0 0 auto; width:30px;height:30px;border-radius:9px; background: var(--bg-tint); display:grid;place-items:center; font-family:"JetBrains Mono"; font-size:.8rem; font-weight:600; color: var(--brand-ink);}
+  .decision summary .arr { margin-left:auto; color: var(--faint); transition:.25s; }
+  .decision[open] summary .arr { transform: rotate(90deg); color: var(--brand); }
+  .decision .opts { margin-top: 18px; display:grid; gap: 10px; }
+  .decision .opt { padding: 13px 15px; border-radius: var(--r-sm); background: var(--surface-2); border:1px solid var(--line-2); font-size:.91rem; color: var(--muted); }
   .decision .opt b { color: var(--text); }
-  .decision .rec { border-color: color-mix(in srgb,var(--good) 55%,var(--border)); background: color-mix(in srgb,var(--good) 9%, var(--bg-2)); }
-  .decision .rec::before { content:"★ Our lean "; color: var(--good); font-weight:800; font-size:.74rem; }
+  .decision .rec { border-color: color-mix(in srgb,var(--good) 45%,var(--line)); background: color-mix(in srgb,var(--good) 7%, var(--surface)); }
+  .decision .rec::before { content:"★ Our lean · "; color: var(--good); font-weight:700; font-size:.72rem; font-family:"JetBrains Mono"; letter-spacing:.04em; }
 
   /* ROADMAP */
-  .timeline { position: relative; padding-left: 30px; }
-  .timeline::before { content:""; position:absolute; left: 9px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
-  .tl-item { position: relative; margin-bottom: 26px; }
-  .tl-item::before { content:""; position:absolute; left: -26px; top: 5px; width: 14px; height: 14px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px var(--bg); }
-  .tl-item.v2::before { background: var(--brand-2); }
-  .tl-item.v3::before { background: var(--accent); }
-  .tl-item .ph { font-size:.76rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color: var(--faint); }
-  .tl-item h4 { margin: 4px 0 6px; }
-  .tl-item p { color: var(--muted); font-size:.92rem; margin:0; }
+  .timeline { position: relative; padding-left: 34px; }
+  .timeline::before { content:""; position:absolute; left: 10px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--brand), var(--brand-2), var(--accent)); opacity:.35; border-radius:2px; }
+  .tl-item { position: relative; margin-bottom: 28px; }
+  .tl-item::before { content:""; position:absolute; left: -28px; top: 5px; width: 15px; height: 15px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px var(--bg), var(--sh-brand); }
+  .tl-item.v2::before { background: var(--brand-2); box-shadow: 0 0 0 4px var(--bg); }
+  .tl-item.v3::before { background: var(--accent); box-shadow: 0 0 0 4px var(--bg); }
+  .tl-item .ph { font-family:"JetBrains Mono"; font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color: var(--faint); }
+  .tl-item h4 { margin: 6px 0 6px; font-size: 1.18rem; }
+  .tl-item p { color: var(--muted); font-size:.93rem; margin:0; }
 
   /* ARCH */
   .arch { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; }
-  .arch-node { background: var(--surface); border:1px solid var(--border); border-radius: 12px; padding: 16px; text-align:center; font-size:.86rem; }
-  .arch-node .ai { font-size: 1.4rem; display:block; margin-bottom: 6px; }
-  .arch-node b { display:block; font-size:.92rem; }
-  .arch-node span { color: var(--faint); font-size:.78rem; }
-  .flow-arrow { text-align:center; color: var(--faint); font-size: 1.4rem; margin: 6px 0; }
+  .arch-node { background: var(--surface); border:1px solid var(--line); border-radius: var(--r-sm); padding: 18px; text-align:center; font-size:.86rem; box-shadow: var(--sh-sm); transition:.22s; }
+  .arch-node:hover { transform: translateY(-3px); box-shadow: var(--sh-md); border-color: color-mix(in srgb,var(--brand) 40%,var(--line)); }
+  .arch-node .ai { font-size: 1.5rem; display:block; margin-bottom: 8px; }
+  .arch-node b { display:block; font-family:"Space Grotesk"; font-size:.94rem; }
+  .arch-node span { color: var(--faint); font-family:"JetBrains Mono"; font-size:.72rem; }
+  .flow-arrow { text-align:center; color: var(--faint); font-size: 1.3rem; margin: 8px 0; opacity:.6; }
 
-  footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--faint); font-size:.88rem; }
+  footer { border-top: 1px solid var(--line); padding: 44px 0; color: var(--faint); font-size:.88rem; }
   .foot-inner { display:flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items:center; }
 
-  .section-alt { background: var(--bg-2); }
-  .reveal { opacity: 0; transform: translateY(24px); transition: .7s cubic-bezier(.2,.7,.2,1); }
+  .section-alt { background: linear-gradient(180deg, var(--bg-tint), var(--bg)); }
+  .reveal { opacity: 0; transform: translateY(26px); transition: .8s cubic-bezier(.2,.75,.2,1); }
   .reveal.in { opacity: 1; transform: none; }
 </style>
 </head>
@@ -307,7 +379,7 @@
 
 <!-- HERO -->
 <header class="hero">
-  <div class="hero-glow"></div>
+  <div class="mesh"><i></i></div>
   <div class="wrap">
     <span class="badge"><span class="pulse"></span> Product Proposal · v1 Draft · 2026</span>
     <h1>Turn every lecture into a<br><span class="grad">measurable path to placement.</span></h1>
@@ -329,8 +401,8 @@
 <section id="problem" class="section-alt">
   <div class="wrap">
     <span class="eyebrow reveal">The gap</span>
-    <h2 class="reveal">Lectures end. Learning leaks. Placement is a black box.</h2>
-    <p class="lede reveal" style="margin-bottom:34px">Most LMS platforms stop at content delivery. What happens between "lecture watched" and "candidate hired" is manual, inconsistent, and invisible — to students, instructors, and companies alike.</p>
+    <h2 class="reveal">Lectures end. Learning leaks.<br>Placement is a black box.</h2>
+    <p class="lede reveal" style="margin-bottom:38px">Most LMS platforms stop at content delivery. What happens between "lecture watched" and "candidate hired" is manual, inconsistent, and invisible — to students, instructors, and companies alike.</p>
     <div class="cards">
       <div class="card reveal"><div class="ic">🧠</div><h3>Retention drops fast</h3><p>Without structured revision within 24–48h, most of a session is forgotten. Notes are inconsistent and rarely revisited.</p></div>
       <div class="card reveal"><div class="ic">⏳</div><h3>Assessment is manual</h3><p>Instructors hand-build quizzes and grade assignments — so feedback is slow, sparse, and doesn't scale across cohorts.</p></div>
@@ -345,7 +417,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">The core concept</span>
     <h2 class="reveal">One automated loop, per session.</h2>
-    <p class="lede reveal" style="margin-bottom:40px">Click a stage to see what Gradely produces automatically. Everything is generated from a single input: the session recording or transcript.</p>
+    <p class="lede reveal" style="margin-bottom:44px">Click a stage to see what Gradely produces automatically. Everything is generated from a single input: the session recording or transcript.</p>
     <div class="loop-wrap">
       <div class="reveal">
         <div class="loop-stage active" data-stage="0">
@@ -380,7 +452,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">Key modules</span>
     <h2 class="reveal">Six modules designed to work as one system.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">Each module is useful alone — but the moat is how they compound into the eligibility engine.</p>
+    <p class="lede reveal" style="margin-bottom:32px">Each module is useful alone — but the moat is how they compound into the eligibility engine.</p>
     <div class="tabs reveal" id="moduleTabs">
       <div class="tab active" data-tab="0">📝 Auto-Summary</div>
       <div class="tab" data-tab="1">❓ Quiz</div>
@@ -398,8 +470,8 @@
   <div class="wrap">
     <span class="eyebrow reveal">Live demo · 1 of 3</span>
     <h2 class="reveal">Auto-generated quiz — try it.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">This is the kind of question Gradely produces from a marketing session transcript. Answer to see scoring and instant feedback.</p>
-    <div style="max-width:720px" class="reveal">
+    <p class="lede reveal" style="margin-bottom:32px">This is the kind of question Gradely produces from a marketing session transcript. Answer to see scoring and instant feedback.</p>
+    <div style="max-width:740px" class="reveal">
       <div class="mock">
         <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">gradely · Session 12 — Performance Marketing · Quiz</span></div>
         <div class="mock-body">
@@ -416,7 +488,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">Live demo · 2 of 3 · The differentiator</span>
     <h2 class="reveal">Placement Eligibility Engine.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">Companies set the bar. Gradely auto-flags who clears it. Move the sliders — watch the eligible pool recompute in real time across a sample cohort of 8 students.</p>
+    <p class="lede reveal" style="margin-bottom:32px">Companies set the bar. Gradely auto-flags who clears it. Move the sliders — watch the eligible pool recompute in real time across a sample cohort of 8 students.</p>
     <div class="sim-grid">
       <div class="mock reveal">
         <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">Acme Corp — Hiring criteria</span></div>
@@ -437,7 +509,7 @@
             <span>Require mentor-approved assignment</span>
             <label class="switch"><input type="checkbox" id="sMentor" checked><span class="track"></span></label>
           </div>
-          <div style="margin-top:22px; text-align:center; background:var(--bg-2); border:1px solid var(--border); border-radius:12px; padding:16px;">
+          <div style="margin-top:22px; text-align:center; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:18px;">
             <div class="sim-count"><span id="simN">0</span> / 8</div>
             <div style="color:var(--faint); font-size:.82rem;">students currently eligible</div>
           </div>
@@ -461,7 +533,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">Live demo · 3 of 3</span>
     <h2 class="reveal">Instructor dashboard.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">Per-cohort health at a glance — quiz trends, completion, engagement, and time-to-completion.</p>
+    <p class="lede reveal" style="margin-bottom:32px">Per-cohort health at a glance — quiz trends, completion, engagement, and time-to-completion.</p>
     <div class="mock reveal">
       <div class="mock-bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="t">gradely · Instructor · Batch 07 overview</span></div>
       <div class="mock-body">
@@ -471,18 +543,18 @@
           <div class="kpi"><div class="l">Bytes watched / student</div><div class="v">11.4</div><div class="d down">▼ 2 vs peak</div></div>
           <div class="kpi"><div class="l">Placement-ready</div><div class="v">5<span style="font-size:1rem;color:var(--faint)">/8</span></div><div class="d up">▲ 2 this week</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px" id="dashLower">
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;">
-            <div style="font-size:.82rem;color:var(--faint);font-weight:600;margin-bottom:4px;">Quiz average by session</div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px" id="dashLower">
+          <div class="panel">
+            <div style="font-family:'JetBrains Mono';font-size:.72rem;color:var(--faint);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Quiz average by session</div>
             <div class="bars" id="dashBars"></div>
           </div>
-          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;">
-            <div style="font-size:.82rem;color:var(--faint);font-weight:600;margin-bottom:14px;">At-risk signals</div>
-            <div style="display:flex;flex-direction:column;gap:12px;font-size:.9rem;">
-              <div style="display:flex;justify-content:space-between;"><span>🔴 Rahul — 3 quizzes skipped</span><span style="color:var(--bad);font-weight:700;">High</span></div>
-              <div style="display:flex;justify-content:space-between;"><span>🟠 Meera — engagement dropping</span><span style="color:var(--warn);font-weight:700;">Watch</span></div>
-              <div style="display:flex;justify-content:space-between;"><span>🟠 Dev — assignment overdue</span><span style="color:var(--warn);font-weight:700;">Watch</span></div>
-              <div style="display:flex;justify-content:space-between;"><span>🟢 Cohort trend</span><span style="color:var(--good);font-weight:700;">Improving</span></div>
+          <div class="panel">
+            <div style="font-family:'JetBrains Mono';font-size:.72rem;color:var(--faint);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">At-risk signals</div>
+            <div style="display:flex;flex-direction:column;gap:13px;font-size:.9rem;">
+              <div style="display:flex;justify-content:space-between;"><span>🔴 Rahul — 3 quizzes skipped</span><span style="color:var(--bad);font-weight:600;">High</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🟠 Meera — engagement dropping</span><span style="color:var(--warn);font-weight:600;">Watch</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🟠 Dev — assignment overdue</span><span style="color:var(--warn);font-weight:600;">Watch</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🟢 Cohort trend</span><span style="color:var(--good);font-weight:600;">Improving</span></div>
             </div>
           </div>
         </div>
@@ -496,7 +568,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">My take</span>
     <h2 class="reveal">Strategic analysis &amp; input.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">Where I think Gradely wins, where the real risk sits, and what to sequence.</p>
+    <p class="lede reveal" style="margin-bottom:32px">Where I think Gradely wins, where the real risk sits, and what to sequence.</p>
     <div class="analysis-grid">
       <div class="anote goodb reveal"><h4>✅ The eligibility engine is the whole business</h4><p>Summary/quiz/bytes are commoditizing fast (any LLM does them). The defensible wedge is closing the loop to hiring. Lead with it in positioning, even if you build it last.</p></div>
       <div class="anote goodb reveal"><h4>✅ Data compounding is your moat</h4><p>Every session adds labeled performance data tied to real outcomes. Over cohorts this becomes a job-readiness signal no single-LLM competitor can copy. Instrument for this from day one.</p></div>
@@ -513,7 +585,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">Decisions that shape everything</span>
     <h2 class="reveal">Six forks in the road.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">These choices cascade into architecture, cost, and GTM. Expand each — I've starred the lean I'd take for v1.</p>
+    <p class="lede reveal" style="margin-bottom:32px">These choices cascade into architecture, cost, and GTM. Expand each — I've starred the lean I'd take for v1.</p>
     <div id="decisionHost"></div>
   </div>
 </section>
@@ -523,7 +595,7 @@
   <div class="wrap">
     <span class="eyebrow reveal">Sequencing</span>
     <h2 class="reveal">A build order that de-risks fastest.</h2>
-    <div class="grid reveal" style="max-width:760px; margin-top:24px;">
+    <div class="grid reveal" style="max-width:780px; margin-top:28px;">
       <div class="timeline">
         <div class="tl-item"><div class="ph">V1 · The core loop (0–3 mo)</div><h4>Prove learning value on one cohort</h4><p>Transcript → tiered summary → MCQ + scenario quiz → basic progress tracking → instructor dashboard. Manual assignment grading, rubric-assisted. Single subject vertical.</p></div>
         <div class="tl-item v2"><div class="ph">V2 · The differentiator (3–6 mo)</div><h4>Ship the eligibility engine + bytes</h4><p>Configurable company criteria + auto-flagging, micro-revision bytes, adaptive quiz difficulty, mentor grading workflow. Onboard 2–3 friendly hiring partners.</p></div>
@@ -538,8 +610,8 @@
   <div class="wrap">
     <span class="eyebrow reveal">Under the hood</span>
     <h2 class="reveal">Reference architecture.</h2>
-    <p class="lede reveal" style="margin-bottom:30px">One ingestion pipeline fans out into every artifact, then rolls back up into the eligibility store.</p>
-    <div class="reveal" style="max-width:820px;margin:0 auto;">
+    <p class="lede reveal" style="margin-bottom:32px">One ingestion pipeline fans out into every artifact, then rolls back up into the eligibility store.</p>
+    <div class="reveal" style="max-width:840px;margin:0 auto;">
       <div class="arch">
         <div class="arch-node"><span class="ai">🎥</span><b>Session Ingest</b><span>Zoom / Meet / upload</span></div>
         <div class="arch-node"><span class="ai">🎙️</span><b>Transcription</b><span>Whisper-class ASR</span></div>
@@ -566,7 +638,7 @@
 <section class="section-alt" style="text-align:center;">
   <div class="wrap reveal">
     <h2>Close the loop from lecture to livelihood.</h2>
-    <p class="lede" style="margin:0 auto 26px;">Gradely turns teaching into measurable, hireable outcomes — automatically, every session.</p>
+    <p class="lede" style="margin:0 auto 28px;">Gradely turns teaching into measurable, hireable outcomes — automatically, every session.</p>
     <a href="#loop" class="btn btn-primary">Revisit the loop ↑</a>
   </div>
 </section>
@@ -601,7 +673,7 @@ const loopData = [
 const loopDetail = document.getElementById('loopDetail');
 function renderLoop(i){
   const d = loopData[i];
-  loopDetail.innerHTML = `<div class="loop-detail"><span class="tag">${d.tag}</span><h3>${d.h}</h3><p style="color:var(--muted)">${d.d}</p><div style="margin-top:14px">${d.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>`;
+  loopDetail.innerHTML = `<div class="loop-detail"><span class="tag">${d.tag}</span><h3>${d.h}</h3><p style="color:var(--muted)">${d.d}</p><div style="margin-top:16px">${d.chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div></div>`;
 }
 document.querySelectorAll('.loop-stage').forEach(s=>{
   s.addEventListener('click',()=>{
@@ -648,12 +720,12 @@ panelHost.innerHTML = modules.map((m,i)=>`
 
 function modulePreview(i){
   switch(i){
-    case 0: return `<div style="font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--brand-2)">TL;DR</div><p style="margin:6px 0 14px">Session covered the paid-media funnel: how to structure campaigns, set bidding strategy, and read core metrics (CTR, CPC, ROAS).</p><div style="font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--brand-2)">KEY TERMS</div><div style="margin-top:6px">${['ROAS','CPC','Quality Score','Bid strategy','Attribution'].map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
-    case 1: return `<div style="font-weight:700;margin-bottom:10px">Scenario Q</div><p style="margin:0 0 12px">A campaign has high CTR but low ROAS. What's the most likely issue?</p>${['Landing page / offer mismatch','Bid too low','Wrong ad schedule'].map((o,k)=>`<div class="quiz-opt" style="cursor:default"><span class="key">${'ABC'[k]}</span>${o}</div>`).join('')}`;
-    case 2: return `<div style="font-weight:700;margin-bottom:6px">Assignment</div><p style="margin:0 0 12px">Draft a search campaign for a D2C coffee brand, ₹50k/mo budget.</p><div style="font-size:.78rem;color:var(--faint);margin-bottom:6px">RUBRIC (AI-scored)</div>${[['Audience & keywords','8/10'],['Budget allocation','7/10'],['Ad copy quality','mentor ✓']].map(r=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--border)"><span>${r[0]}</span><b style="color:var(--good)">${r[1]}</b></div>`).join('')}`;
-    case 3: return `<div style="display:flex;gap:12px;flex-wrap:wrap">${['ROAS in 90s','Bidding basics','Reading CTR','Attribution 101'].map(t=>`<div style="flex:1 1 40%;min-width:120px;background:var(--bg-3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center"><div style="font-size:1.6rem">▶</div><div style="font-size:.82rem;margin-top:6px">${t}</div><div style="font-size:.7rem;color:var(--faint)">0:${60+Math.floor(Math.random()*30)}</div></div>`).join('')}`;
-    case 4: return `<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="font-weight:700">Batch 07</span><span style="color:var(--good);font-weight:700">78% avg</span></div>${[['Aisha',92],['Rohan',71],['Meera',58],['Karan',84]].map(s=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="width:60px;font-size:.85rem">${s[0]}</span><span class="mini-bar" style="flex:1;width:auto"><span style="width:${s[1]}%"></span></span><b style="font-size:.82rem">${s[1]}%</b></div>`).join('')}`;
-    case 5: return `<div style="text-align:center;padding:14px 0"><div style="font-size:.78rem;color:var(--faint)">Acme Corp gate</div><div style="font-size:2rem;font-weight:850;margin:6px 0">5 <span style="font-size:1rem;color:var(--faint)">of 8 eligible</span></div><div style="margin-top:8px">${['80%+ quiz','All assignments','Top 30% engagement'].map(t=>`<span class="chip">${t}</span>`).join('')}</div></div>`;
+    case 0: return `<div style="font-family:'JetBrains Mono';font-size:.68rem;font-weight:600;letter-spacing:.1em;color:var(--brand-ink)">TL;DR</div><p style="margin:6px 0 14px">Session covered the paid-media funnel: how to structure campaigns, set bidding strategy, and read core metrics (CTR, CPC, ROAS).</p><div style="font-family:'JetBrains Mono';font-size:.68rem;font-weight:600;letter-spacing:.1em;color:var(--brand-ink)">KEY TERMS</div><div style="margin-top:8px">${['ROAS','CPC','Quality Score','Bid strategy','Attribution'].map(t=>`<span class="chip">${t}</span>`).join('')}</div>`;
+    case 1: return `<div style="font-family:'Space Grotesk';font-weight:600;margin-bottom:10px">Scenario Q</div><p style="margin:0 0 12px">A campaign has high CTR but low ROAS. What's the most likely issue?</p>${['Landing page / offer mismatch','Bid too low','Wrong ad schedule'].map((o,k)=>`<div class="quiz-opt" style="cursor:default"><span class="key">${'ABC'[k]}</span>${o}</div>`).join('')}`;
+    case 2: return `<div style="font-family:'Space Grotesk';font-weight:600;margin-bottom:6px">Assignment</div><p style="margin:0 0 12px">Draft a search campaign for a D2C coffee brand, ₹50k/mo budget.</p><div style="font-family:'JetBrains Mono';font-size:.7rem;color:var(--faint);margin-bottom:6px">RUBRIC (AI-scored)</div>${[['Audience & keywords','8/10'],['Budget allocation','7/10'],['Ad copy quality','mentor ✓']].map(r=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line-2)"><span>${r[0]}</span><b style="color:var(--good)">${r[1]}</b></div>`).join('')}`;
+    case 3: return `<div style="display:flex;gap:12px;flex-wrap:wrap">${['ROAS in 90s','Bidding basics','Reading CTR','Attribution 101'].map(t=>`<div style="flex:1 1 40%;min-width:120px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center"><div style="font-size:1.6rem">▶</div><div style="font-size:.82rem;margin-top:6px">${t}</div><div style="font-family:'JetBrains Mono';font-size:.7rem;color:var(--faint)">0:${60+Math.floor(Math.random()*30)}</div></div>`).join('')}`;
+    case 4: return `<div style="display:flex;justify-content:space-between;margin-bottom:14px"><span style="font-family:'Space Grotesk';font-weight:600">Batch 07</span><span style="color:var(--good);font-weight:600">78% avg</span></div>${[['Aisha',92],['Rohan',71],['Meera',58],['Karan',84]].map(s=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:11px"><span style="width:60px;font-size:.85rem">${s[0]}</span><span class="mini-bar" style="flex:1;width:auto"><span style="width:${s[1]}%"></span></span><b style="font-size:.82rem">${s[1]}%</b></div>`).join('')}`;
+    case 5: return `<div style="text-align:center;padding:14px 0"><div style="font-family:'JetBrains Mono';font-size:.72rem;color:var(--faint)">Acme Corp gate</div><div style="font-family:'Space Grotesk';font-size:2.1rem;font-weight:700;margin:6px 0">5 <span style="font-size:1rem;color:var(--faint)">of 8 eligible</span></div><div style="margin-top:8px">${['80%+ quiz','All assignments','Top 30% engagement'].map(t=>`<span class="chip">${t}</span>`).join('')}</div></div>`;
   }
 }
 document.querySelectorAll('#moduleTabs .tab').forEach(t=>{
@@ -709,7 +781,7 @@ function renderQuiz(){
       if(k===correct)qScore++;
       const fb=document.getElementById('qfb');
       fb.className='quiz-feedback show';
-      fb.style.background = k===correct?'color-mix(in srgb,var(--good) 14%,transparent)':'color-mix(in srgb,var(--bad) 12%,transparent)';
+      fb.style.background = k===correct?'color-mix(in srgb,var(--good) 12%,transparent)':'color-mix(in srgb,var(--bad) 10%,transparent)';
       fb.innerHTML=`<b>${k===correct?'✓ Correct.':'✗ Not quite.'}</b> ${item.why} <div style="margin-top:12px"><button class="btn btn-primary" id="qNext" style="padding:9px 18px">${qIndex===quiz.length-1?'See results →':'Next question →'}</button></div>`;
       document.getElementById('qNext').onclick=()=>{qIndex++;delete quizHost.dataset.answered;renderQuiz();};
     });
@@ -734,7 +806,7 @@ const rowsHost=document.getElementById('studentRows'), simN=document.getElementB
 function evalSim(){
   const q=+els.quiz.value, a=+els.assign.value, e=+els.eng.value, m=els.mentor.checked;
   vals.quiz.textContent=q; vals.assign.textContent=a;
-  vals.eng.textContent=100-e; // "top X%" — higher slider = stricter
+  vals.eng.textContent=100-e;
   let count=0;
   rowsHost.innerHTML=students.map(s=>{
     const ok = s.quiz>=q && s.assign>=a && s.eng>=e && (!m || s.mentor);
